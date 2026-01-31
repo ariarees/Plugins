@@ -35,8 +35,7 @@ Minecraft server Plugins build on the Doughmination Framework.
 **Installation:** Download from [Doughmination Modding](https://modding.doughmination.co.uk)
 
 ## Contributors
-
-<a href="https://github.com.Doughmination-Systems/Plugins/graphs/contributors">
+<a href="https://github.com/Doughmination-Systems/Plugins/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Doughmination-Systems/Plugins" />
 </a>
 
