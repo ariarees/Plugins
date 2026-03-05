@@ -118,6 +118,11 @@ commands:
     usage: /echest
     permission: dough.vchest
     permission-message: §cYou do not have permission to use this command!
+  chest:
+    description: Inspect a player's ender chest or VIP chest (moderation)
+    usage: /chest <echest|vchest> <player>
+    permission: dough.chest
+    permission-message: §cYou do not have permission to inspect player chests!
   growthpotion:
     description: Gives you a growth potion
     usage: /growthpotion
@@ -179,6 +184,9 @@ permissions:
     default: true
   dough.vchest:
     description: Allows VIP players to open a separate larger double chest via /vchest.
+    default: op
+  dough.chest:
+    description: Allows staff to inspect any player's echest or vchest via /chest.
     default: op
   dough.growthpotion:
     description: Gives a growth potion

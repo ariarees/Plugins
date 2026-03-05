@@ -11,7 +11,7 @@ import win.doughmination.doughminationcord.commands.chests.*;
 import win.doughmination.doughminationcord.commands.moderation.*;
 import win.doughmination.doughminationcord.commands.roleplay.*;
 import win.doughmination.doughminationcord.commands.travel.*;
-import win.doughmination.doughminationcord.data.PlayerDataManager;
+import win.doughmination.doughminationcord.data.*;
 import win.doughmination.doughminationcord.listeners.flight.*;
 import win.doughmination.doughminationcord.listeners.veinminer.*;
 import win.doughmination.doughminationcord.listeners.spawneggs.*;
@@ -112,6 +112,7 @@ public class CordMain extends JavaPlugin {
         reg("veinminer",   veinMinerExecutor);
         reg("echest",      new EChestCommandExecutor(this));
         reg("vchest",      vChestExecutor);
+        reg("chest",       new chestsCommandExecutor(this));
         reg("recipes",     new RecipesCommandExecutor(this));
         GrowthShrinkPotionCommand potionExec = new GrowthShrinkPotionCommand(this);
         reg("growthpotion", potionExec);

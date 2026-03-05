@@ -1,4 +1,4 @@
-description = "Discord bot integration for whitelist management"
+description = "Plugin to connect your server to Discord"
 
 dependencies {
     compileOnly project(':doughapi')
@@ -12,27 +12,4 @@ tasks.named('compileJava') {
 
 shadowJar {
     archiveBaseName.set('WingSync')
-
-    relocate 'net.dv8tion', 'win.dougmination.libs.jda'
-    relocate 'com.neovisionaries', 'win.dougmination.libs.neovisionaries'
-    relocate 'okhttp3', 'win.dougmination.libs.okhttp3'
-    relocate 'okio', 'win.dougmination.libs.okio'
-    relocate 'gnu.trove', 'win.dougmination.libs.trove'
-    relocate 'com.fasterxml.jackson', 'win.dougmination.libs.jackson'
-    relocate 'org.apache.commons', 'win.dougmination.libs.commons'
-    relocate 'kotlin', 'win.dougmination.libs.kotlin'
-    relocate 'org.jetbrains', 'win.dougmination.libs.jetbrains'
-    relocate 'org.intellij', 'win.dougmination.libs.intellij'
-    relocate 'org.slf4j', 'win.dougmination.libs.slf4j'
-
-    mergeServiceFiles()
-
-    configurations = [project.configurations.runtimeClasspath]
-
-    exclude 'META-INF/*.SF'
-    exclude 'META-INF/*.DSA'
-    exclude 'META-INF/*.RSA'
-    exclude 'META-INF/MANIFEST.MF'
-    exclude 'META-INF/maven/**'
-    exclude 'META-INF/versions/**'
 }

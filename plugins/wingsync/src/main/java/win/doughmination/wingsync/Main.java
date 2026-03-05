@@ -166,14 +166,6 @@ public class Main extends JavaPlugin {
             botConnected = true;
             getLogger().info("Discord bot connected successfully!");
             return true;
-        } catch (net.dv8tion.jda.api.exceptions.InvalidTokenException e) {
-            getLogger().severe("========================================");
-            getLogger().severe("Invalid Discord bot token!");
-            getLogger().severe("Please check your token in config.yml");
-            getLogger().severe("and use /wsreload to reconnect.");
-            getLogger().severe("========================================");
-            botConnected = false;
-            return false;
         } catch (InterruptedException e) {
             getLogger().severe("Discord bot connection was interrupted!");
             getLogger().severe("Use /wsreload to try again.");
