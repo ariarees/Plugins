@@ -203,21 +203,21 @@ public class Main extends JavaPlugin {
             // If switching storage methods, handle migration
             if (newUseMysql != useMysql) {
                 if (newUseMysql) {
-                    sender.sendMessage("§eSwitching to MySQL storage...");
+                    sender.sendMessage("\u00a7eSwitching to MySQL storage...");
                     // Save current file data before switching
                     if (!useMysql) {
                         saveFileData();
                     }
                     setupDatabase();
-                    sender.sendMessage("§aMySQL storage enabled!");
+                    sender.sendMessage("\u00a7aMySQL storage enabled!");
                 } else {
-                    sender.sendMessage("§eSwitching to file-based storage...");
+                    sender.sendMessage("\u00a7eSwitching to file-based storage...");
                     // Close database before switching
                     if (useMysql) {
                         closeDatabaseConnection();
                     }
                     setupFileStorage();
-                    sender.sendMessage("§aFile-based storage enabled!");
+                    sender.sendMessage("\u00a7aFile-based storage enabled!");
                 }
                 useMysql = newUseMysql;
             } else {
@@ -231,12 +231,12 @@ public class Main extends JavaPlugin {
             }
 
             // Attempt to reconnect the Discord bot
-            sender.sendMessage("§eReconnecting Discord bot...");
+            sender.sendMessage("\u00a7eReconnecting Discord bot...");
             boolean connected = connectDiscordBot();
             if (connected) {
-                sender.sendMessage("§aWingSync reloaded successfully! Discord bot connected.");
+                sender.sendMessage("\u00a7aWingSync reloaded successfully! Discord bot connected.");
             } else {
-                sender.sendMessage("§cWingSync reloaded, but Discord bot failed to connect. Check console for details.");
+                sender.sendMessage("\u00a7cWingSync reloaded, but Discord bot failed to connect. Check console for details.");
             }
 
             return true;
@@ -685,7 +685,7 @@ public class Main extends JavaPlugin {
 
                 event.getHook().sendMessage(response.toString()).queue();
             } catch (Exception e) {
-                event.getHook().sendMessage("❌ Failed to fetch data. Please try again later.").queue();
+                event.getHook().sendMessage("[ERROR] Failed to fetch data. Please try again later.").queue();
                 getLogger().severe("Error in whois command: " + e.getMessage());
             }
         }
@@ -701,10 +701,10 @@ public class Main extends JavaPlugin {
                 if (discordUsername != null) {
                     event.getHook().sendMessage("**" + discordUsername + "** is linked to Minecraft username **" + username + "**").queue();
                 } else {
-                    event.getHook().sendMessage("❌ No Discord user is linked to Minecraft username **" + username + "**").queue();
+                    event.getHook().sendMessage("[ERROR] No Discord user is linked to Minecraft username **" + username + "**").queue();
                 }
             } catch (Exception e) {
-                event.getHook().sendMessage("❌ Failed to fetch data. Please try again later.").queue();
+                event.getHook().sendMessage("[ERROR] Failed to fetch data. Please try again later.").queue();
                 getLogger().severe("Error in whomc command: " + e.getMessage());
             }
         }
@@ -725,10 +725,10 @@ public class Main extends JavaPlugin {
 
                     storePlayerData(uuid.toString(), playerName, discordId, discordUsername);
 
-                    event.getHook().sendMessage("✅ Player **" + playerName + "** has been added to the whitelist!").queue();
+                    event.getHook().sendMessage("[OK] Player **" + playerName + "** has been added to the whitelist!").queue();
                 } catch (Exception e) {
                     getLogger().warning("Error adding player: " + e.getMessage());
-                    event.getHook().sendMessage("❌ Failed to add player to whitelist.").queue();
+                    event.getHook().sendMessage("[ERROR] Failed to add player to whitelist.").queue();
                 }
             });
         }
@@ -750,13 +750,13 @@ public class Main extends JavaPlugin {
                     if (playerDiscordId != null && (playerDiscordId.equals(discordId) || discordId.equals(adminDiscordId))) {
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "whitelist remove " + playerName);
                         removePlayerData(uuid.toString());
-                        event.getHook().sendMessage("✅ Player **" + playerName + "** has been removed from the whitelist.").queue();
+                        event.getHook().sendMessage("[OK] Player **" + playerName + "** has been removed from the whitelist.").queue();
                     } else {
-                        event.getHook().sendMessage("❌ You do not have permission to unwhitelist this player.").queue();
+                        event.getHook().sendMessage("[ERROR] You do not have permission to unwhitelist this player.").queue();
                     }
                 } catch (Exception e) {
                     getLogger().warning("Error removing player: " + e.getMessage());
-                    event.getHook().sendMessage("❌ Failed to remove player from whitelist.").queue();
+                    event.getHook().sendMessage("[ERROR] Failed to remove player from whitelist.").queue();
                 }
             });
         }
@@ -767,7 +767,7 @@ public class Main extends JavaPlugin {
             Bukkit.getScheduler().runTask(Main.this, () -> {
                 StringBuilder response = new StringBuilder("**Whitelisted Players:**\n```\n");
                 for (OfflinePlayer player : Bukkit.getWhitelistedPlayers()) {
-                    response.append("• ").append(player.getName()).append("\n");
+                    response.append("- ").append(player.getName()).append("\n");
                 }
 
                 if (response.toString().equals("**Whitelisted Players:**\n```\n")) {
@@ -789,7 +789,7 @@ public class Main extends JavaPlugin {
 
             // Check if user is admin
             if (!discordId.equals(adminDiscordId)) {
-                event.getHook().sendMessage("❌ You do not have permission to use this command. Only the admin can pardon players.").queue();
+                event.getHook().sendMessage("[ERROR] You do not have permission to use this command. Only the admin can pardon players.").queue();
                 return;
             }
 
@@ -807,15 +807,15 @@ public class Main extends JavaPlugin {
                         getLogger().warning("Failed to unban " + playerName + " from Discord: " + e.getMessage());
                     }
 
-                    event.getHook().sendMessage("✅ Player **" + playerName + "** has been pardoned!\n" +
-                            "• Minecraft ban removed\n" +
-                            "• Discord ban removed (if they were linked)").queue();
+                    event.getHook().sendMessage("[OK] Player **" + playerName + "** has been pardoned!\n" +
+                            "- Minecraft ban removed\n" +
+                            "- Discord ban removed (if they were linked)").queue();
 
                     getLogger().info(event.getUser().getName() + " pardoned player: " + playerName);
 
                 } catch (Exception e) {
                     getLogger().warning("Error pardoning player: " + e.getMessage());
-                    event.getHook().sendMessage("❌ Failed to pardon player. Please check the logs.").queue();
+                    event.getHook().sendMessage("[ERROR] Failed to pardon player. Please check the logs.").queue();
                 }
             });
         }

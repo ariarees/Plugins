@@ -44,7 +44,11 @@ public class baseCommandExecutor implements CommandExecutor {
 
         Location baseLocation = plugin.getBases().get(playerUUID);
         if (player.teleport(baseLocation)) {
-            player.playSound(baseLocation, Sound.valueOf(plugin.getConfig().getString("sounds.base", "ENTITY_ENDERMAN_TELEPORT")), 1.0f, 1.0f);
+            String soundName = plugin.getConfig().getString("sounds.base", "ENTITY_ENDERMAN_TELEPORT");
+            Sound sound = org.bukkit.Registry.SOUNDS.get(org.bukkit.NamespacedKey.minecraft(soundName.toLowerCase()));
+            if (sound != null) {
+                player.playSound(baseLocation, sound, 1.0f, 1.0f);
+            }
             player.sendMessage(ChatColor.GREEN + "Teleporting to your base!");
         } else {
             player.sendMessage(ChatColor.GOLD + "Teleport failed!");
