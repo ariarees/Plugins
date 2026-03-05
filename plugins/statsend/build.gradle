@@ -9,7 +9,7 @@ description = "End Stats Paper plugin - Dragon event tracking"
 
 dependencies {
     // bStats for metrics
-    implementation 'org.bstats:bstats-bukkit:3.1.0'
+    implementation 'org.bstats:bstats-bukkit:3.2.1'
 }
 
 shadowJar {

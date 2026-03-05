@@ -13,7 +13,7 @@ dependencies {
     compileOnly project(':doughminationapi')
 
     // JDA for Discord bot (will pull in all transitive dependencies)
-    implementation 'net.dv8tion:JDA:6.3.0'
+    implementation 'net.dv8tion:JDA:6.3.1'
 
     // Gson for JSON storage
     implementation 'com.google.code.gson:gson:2.13.2'
