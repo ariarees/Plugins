@@ -5,9 +5,9 @@
 
 package win.doughmination.doughcord.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import win.doughmination.doughcord.CordMain;
-
-import org.bukkit.ChatColor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -29,44 +29,47 @@ public class GrowthShrinkPotionCommandExecutor implements CommandExecutor, TabCo
 
     public GrowthShrinkPotionCommandExecutor(CordMain plugin) {
         this.plugin = plugin;
-        // Create a new namespaced key for custom potion types
         potionTypeKey = new NamespacedKey(plugin, "potionType");
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage("Only players can get potions!");
             return true;
         }
-        Player player = (Player) sender;
+
         String cmdName = command.getName().toLowerCase();
         ItemStack potion = new ItemStack(Material.POTION, 1);
         ItemMeta meta = potion.getItemMeta();
         if (meta == null) return true;
 
         if (cmdName.equals("growthpotion")) {
-            meta.setDisplayName(ChatColor.GOLD + "Growth Potion");
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.GRAY + "Drink to grow larger!");
-            meta.setLore(lore);
+            meta.displayName(Component.text("Growth Potion", NamedTextColor.GOLD));
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text("Drink to grow larger!", NamedTextColor.GRAY));
+            meta.lore(lore);
             meta.getPersistentDataContainer().set(potionTypeKey, PersistentDataType.STRING, "growth");
         } else if (cmdName.equals("shrinkpotion")) {
-            meta.setDisplayName(ChatColor.AQUA + "Shrink Potion");
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.GRAY + "Drink to grow smaller!");
-            meta.setLore(lore);
+            meta.displayName(Component.text("Shrink Potion", NamedTextColor.AQUA));
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text("Drink to grow smaller!", NamedTextColor.GRAY));
+            meta.lore(lore);
             meta.getPersistentDataContainer().set(potionTypeKey, PersistentDataType.STRING, "shrink");
         } else {
-            player.sendMessage(ChatColor.RED + "Unknown potion command.");
+            player.sendMessage(Component.text("Unknown potion command.", NamedTextColor.RED));
             return true;
         }
+
         potion.setItemMeta(meta);
         player.getInventory().addItem(potion);
-        player.sendMessage(ChatColor.GREEN + "You have received a " + meta.getDisplayName() + ChatColor.GREEN + "!");
+        player.sendMessage(
+            Component.text("You have received a ", NamedTextColor.GREEN)
+                .append(meta.displayName())
+                .append(Component.text("!", NamedTextColor.GREEN))
+        );
         return true;
     }
-
 
     @Override
     public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {

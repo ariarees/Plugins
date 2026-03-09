@@ -5,8 +5,9 @@
 
 package win.doughmination.doughcord.listeners.travel;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import win.doughmination.doughcord.CordMain;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,22 +28,21 @@ public class BaseFlyCommandExecutor implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
             return true;
         }
 
-        Player player = (Player) sender;
         UUID playerUUID = player.getUniqueId();
 
         if (!doughPlugin.hasBase(playerUUID)) {
-            player.sendMessage(ChatColor.RED + "You have not set a base!");
+            player.sendMessage(Component.text("You have not set a base!", NamedTextColor.RED));
             return true;
         }
 
         Location baseLocation = doughPlugin.getBaseLocation(playerUUID);
         if (baseLocation == null || !baseLocation.getWorld().equals(player.getWorld())) {
-            player.sendMessage(ChatColor.RED + "You are not in the same world as your base!");
+            player.sendMessage(Component.text("You are not in the same world as your base!", NamedTextColor.RED));
             return true;
         }
 
@@ -50,12 +50,12 @@ public class BaseFlyCommandExecutor implements CommandExecutor {
         boolean withinRadius = distance <= 100;
 
         if (!withinRadius) {
-            player.sendMessage(ChatColor.RED + "You must be within your base radius to toggle flight!");
+            player.sendMessage(Component.text("You must be within your base radius to toggle flight!", NamedTextColor.RED));
             return true;
         }
 
         if (args.length != 1 || (!args[0].equalsIgnoreCase("on") && !args[0].equalsIgnoreCase("off"))) {
-            player.sendMessage(ChatColor.RED + "Usage: /basefly <on|off>");
+            player.sendMessage(Component.text("Usage: /basefly <on|off>", NamedTextColor.RED));
             return true;
         }
 
@@ -65,10 +65,10 @@ public class BaseFlyCommandExecutor implements CommandExecutor {
 
         if (enableFlight) {
             player.setAllowFlight(true);
-            player.sendMessage(ChatColor.GREEN + "Flight enabled while you are within your base.");
+            player.sendMessage(Component.text("Flight enabled while you are within your base.", NamedTextColor.GREEN));
         } else {
             player.setAllowFlight(false);
-            player.sendMessage(ChatColor.YELLOW + "Flight disabled.");
+            player.sendMessage(Component.text("Flight disabled.", NamedTextColor.YELLOW));
         }
         return true;
     }

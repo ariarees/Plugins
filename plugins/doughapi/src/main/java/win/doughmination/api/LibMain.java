@@ -5,11 +5,16 @@
 
 package win.doughmination.api;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import win.doughmination.api.events.PlayerBannedEvent;
 import win.doughmination.api.events.PlayerUnbannedEvent;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -125,7 +130,7 @@ public class LibMain extends JavaPlugin {
         // Kick the player if they're online
         Player player = Bukkit.getPlayer(playerUUID);
         if (player != null && player.isOnline()) {
-            player.kickPlayer("§cYou have been banned!\n§7Reason: " + reason);
+            player.kick(Component.text("You have been banned for: " + reason, NamedTextColor.RED));
         }
 
         getLogger().info(playerName + " has been banned by " + bannedBy + ". Reason: " + reason);

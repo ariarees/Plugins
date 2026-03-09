@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2026 Clove Twilight
- * Licensed under the Apache License, Version 2.0
- * http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the ESAL-1.3 Licence
  */
 
 package win.doughmination.doughcord.commands.moderation;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,36 +31,37 @@ public class BanlistCommandExecutor implements CommandExecutor, org.bukkit.comma
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("dough.banlist")) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+            sender.sendMessage(Component.text("You do not have permission to use this command!", NamedTextColor.RED));
             return true;
         }
 
-        LibMain cloveLib = LibMain.getInstance();
-        Map<UUID, BanData> bans = cloveLib.getAllBans();
+        Map<UUID, BanData> bans = LibMain.getInstance().getAllBans();
 
         if (bans.isEmpty()) {
-            sender.sendMessage(ChatColor.GREEN + "There are no banned players.");
+            sender.sendMessage(Component.text("There are no banned players.", NamedTextColor.GREEN));
             return true;
         }
 
-        sender.sendMessage(ChatColor.GOLD + "======== " + ChatColor.RED + "Banned Players" +
-                ChatColor.GOLD + " (" + bans.size() + ") ========");
+        sender.sendMessage(Component.text("════ ", NamedTextColor.GOLD)
+            .append(Component.text("Banned Players", NamedTextColor.RED))
+            .append(Component.text(" (" + bans.size() + ") ════", NamedTextColor.GOLD)));
 
         for (BanData banData : bans.values()) {
             String banDate = dateFormat.format(new Date(banData.getBannedAt()));
-
-            sender.sendMessage(ChatColor.RED + "• " + ChatColor.WHITE + banData.getPlayerName());
-            sender.sendMessage(ChatColor.GRAY + "  Reason: " + banData.getReason());
-            sender.sendMessage(ChatColor.GRAY + "  Banned by: " + banData.getBannedBy() + " on " + banDate);
+            sender.sendMessage(Component.text("• ", NamedTextColor.RED)
+                .append(Component.text(banData.getPlayerName(), NamedTextColor.WHITE)));
+            sender.sendMessage(Component.text("  Reason: ", NamedTextColor.GRAY)
+                .append(Component.text(banData.getReason(), NamedTextColor.WHITE)));
+            sender.sendMessage(Component.text("  Banned by: ", NamedTextColor.GRAY)
+                .append(Component.text(banData.getBannedBy() + " on " + banDate, NamedTextColor.WHITE)));
         }
 
-        sender.sendMessage(ChatColor.GOLD + "================================");
-
+        sender.sendMessage(Component.text("════════════════════════════════", NamedTextColor.GOLD));
         return true;
     }
 
     @Override
-    public java.util.List<String> onTabComplete(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
+    public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return java.util.Collections.emptyList();
     }
 }

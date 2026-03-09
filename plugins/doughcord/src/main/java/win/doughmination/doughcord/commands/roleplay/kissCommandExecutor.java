@@ -5,19 +5,23 @@
 
 package win.doughmination.doughcord.commands.roleplay;
 
-import org.bukkit.ChatColor;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+
 import win.doughmination.doughcord.CordMain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class kissCommandExecutor implements CommandExecutor, TabCompleter {
+
     private final CordMain plugin;
 
     public kissCommandExecutor(CordMain plugin) {
@@ -27,35 +31,33 @@ public class kissCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player senderPlayer)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+            sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
             return true;
         }
 
         if (args.length != 1) {
-            senderPlayer.sendMessage(ChatColor.AQUA + "Usage: /kiss <player>");
+            senderPlayer.sendMessage(Component.text("Usage: /kiss <player>", NamedTextColor.AQUA));
             return true;
         }
 
         Player targetPlayer = plugin.getServer().getPlayer(args[0]);
         if (targetPlayer == null) {
-            senderPlayer.sendMessage(ChatColor.RED + "Player not found!");
+            senderPlayer.sendMessage(Component.text("Player not found!", NamedTextColor.RED));
             return true;
         }
 
         if (senderPlayer.equals(targetPlayer)) {
-            senderPlayer.sendMessage(ChatColor.RED + "You can't kiss yourself!");
+            senderPlayer.sendMessage(Component.text("You can't kiss yourself!", NamedTextColor.RED));
             return true;
         }
 
-        // Broadcast the kiss message
-        plugin.getServer().broadcastMessage(
-                ChatColor.LIGHT_PURPLE + senderPlayer.getName() +
-                        ChatColor.WHITE + " kisses " +
-                        ChatColor.LIGHT_PURPLE + targetPlayer.getName() +
-                        ChatColor.WHITE + "!"
+        plugin.getServer().broadcast(
+                Component.text(senderPlayer.getName(), NamedTextColor.LIGHT_PURPLE)
+                        .append(Component.text(" kisses ", NamedTextColor.WHITE))
+                        .append(Component.text(targetPlayer.getName(), NamedTextColor.LIGHT_PURPLE))
+                        .append(Component.text("!", NamedTextColor.WHITE))
         );
 
-        // Play level up sound for the sender
         senderPlayer.playSound(senderPlayer.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
 
         return true;
@@ -64,7 +66,6 @@ public class kissCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
-
         if (args.length == 1) {
             String partialName = args[0].toLowerCase();
             for (Player player : plugin.getServer().getOnlinePlayers()) {
@@ -73,7 +74,6 @@ public class kissCommandExecutor implements CommandExecutor, TabCompleter {
                 }
             }
         }
-
         return completions;
     }
 }

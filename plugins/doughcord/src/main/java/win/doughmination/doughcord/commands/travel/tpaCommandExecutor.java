@@ -5,13 +5,13 @@
 
 package win.doughmination.doughcord.commands.travel;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-
 import win.doughmination.doughcord.CordMain;
 import win.doughmination.api.LibMain;
 
@@ -29,42 +29,54 @@ public class tpaCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player requester)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+            sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
             return true;
         }
 
         if (!LibMain.getInstance().canUseCommand(requester, "tpask")) {
-            requester.sendMessage(ChatColor.RED + "You cannot use this command while jailed!");
+            requester.sendMessage(Component.text("You cannot use this command while jailed!", NamedTextColor.RED));
             return true;
         }
 
         if (args.length != 1) {
-            requester.sendMessage(ChatColor.RED + "Usage: /tpa <player>");
+            requester.sendMessage(Component.text("Usage: /tpa <player>", NamedTextColor.RED));
             return true;
         }
 
         Player target = plugin.getServer().getPlayer(args[0]);
         if (target == null || !target.isOnline()) {
-            requester.sendMessage(ChatColor.RED + "Player not found or not online!");
+            requester.sendMessage(Component.text("Player not found or not online!", NamedTextColor.RED));
             return true;
         }
 
         if (target.equals(requester)) {
-            requester.sendMessage(ChatColor.RED + "You cannot teleport to yourself!");
+            requester.sendMessage(Component.text("You cannot teleport to yourself!", NamedTextColor.RED));
             return true;
         }
 
         if (plugin.getTeleportRequestManager().hasRequest(target.getUniqueId())) {
-            requester.sendMessage(ChatColor.YELLOW + "This player already has a pending teleport request.");
+            requester.sendMessage(Component.text("This player already has a pending teleport request.", NamedTextColor.YELLOW));
             return true;
         }
 
         plugin.getTeleportRequestManager().addRequest(target.getUniqueId(), requester.getUniqueId());
 
-        target.sendMessage(ChatColor.AQUA + requester.getName() + ChatColor.YELLOW + " wants to teleport to you!");
-        target.sendMessage(ChatColor.GREEN + "Type " + ChatColor.AQUA + "/tpaccept" + ChatColor.GREEN + " to accept or " +
-                ChatColor.AQUA + "/tpdeny" + ChatColor.GREEN + " to deny.");
-        requester.sendMessage(ChatColor.GREEN + "Teleport request sent to " + ChatColor.AQUA + target.getName() + ChatColor.GREEN + ".");
+        target.sendMessage(
+            Component.text(requester.getName(), NamedTextColor.AQUA)
+                .append(Component.text(" wants to teleport to you!", NamedTextColor.YELLOW))
+        );
+        target.sendMessage(
+            Component.text("Type ", NamedTextColor.GREEN)
+                .append(Component.text("/tpaccept", NamedTextColor.AQUA))
+                .append(Component.text(" to accept or ", NamedTextColor.GREEN))
+                .append(Component.text("/tpdeny", NamedTextColor.AQUA))
+                .append(Component.text(" to deny.", NamedTextColor.GREEN))
+        );
+        requester.sendMessage(
+            Component.text("Teleport request sent to ", NamedTextColor.GREEN)
+                .append(Component.text(target.getName(), NamedTextColor.AQUA))
+                .append(Component.text(".", NamedTextColor.GREEN))
+        );
         return true;
     }
 

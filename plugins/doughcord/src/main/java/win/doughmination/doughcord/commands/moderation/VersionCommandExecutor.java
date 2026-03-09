@@ -5,7 +5,8 @@
 
 package win.doughmination.doughcord.commands.moderation;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -21,25 +22,27 @@ public class VersionCommandExecutor implements CommandExecutor, org.bukkit.comma
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        String commonMessage = "DoughminationCord";
-
         String version = plugin.getDescription().getVersion();
         String authors = String.join(", ", plugin.getDescription().getAuthors());
         String website = plugin.getDescription().getWebsite();
 
-        sender.sendMessage(ChatColor.GOLD + "======== " + commonMessage + ChatColor.GREEN + " Plugin Info" + ChatColor.GOLD + " ========");
-        sender.sendMessage(ChatColor.YELLOW + "Version: " + ChatColor.WHITE + version);
-        sender.sendMessage(ChatColor.YELLOW + "Authors: " + ChatColor.WHITE + authors);
+        sender.sendMessage(Component.text("════ ", NamedTextColor.GOLD)
+            .append(Component.text("DoughminationCord Plugin Info", NamedTextColor.GREEN))
+            .append(Component.text(" ════", NamedTextColor.GOLD)));
+        sender.sendMessage(Component.text("Version: ", NamedTextColor.YELLOW)
+            .append(Component.text(version, NamedTextColor.WHITE)));
+        sender.sendMessage(Component.text("Authors: ", NamedTextColor.YELLOW)
+            .append(Component.text(authors, NamedTextColor.WHITE)));
         if (website != null && !website.isEmpty()) {
-            sender.sendMessage(ChatColor.YELLOW + "Website: " + ChatColor.WHITE + website);
+            sender.sendMessage(Component.text("Website: ", NamedTextColor.YELLOW)
+                .append(Component.text(website, NamedTextColor.WHITE)));
         }
-        sender.sendMessage(ChatColor.GOLD + "================================");
-
+        sender.sendMessage(Component.text("════════════════════════════════", NamedTextColor.GOLD));
         return true;
     }
 
     @Override
-    public java.util.List<String> onTabComplete(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
+    public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return java.util.Collections.emptyList();
     }
 }

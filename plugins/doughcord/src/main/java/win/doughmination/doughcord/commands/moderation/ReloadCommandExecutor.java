@@ -5,7 +5,8 @@
 
 package win.doughmination.doughcord.commands.moderation;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,26 +23,24 @@ public class ReloadCommandExecutor implements CommandExecutor, org.bukkit.comman
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("dough.reload")) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to reload the plugin!");
+            sender.sendMessage(Component.text("You do not have permission to reload the plugin!", NamedTextColor.RED));
             return true;
         }
 
-        sender.sendMessage(ChatColor.YELLOW + "Reloading configuration...");
-
+        sender.sendMessage(Component.text("Reloading configuration...", NamedTextColor.YELLOW));
         try {
             plugin.reloadConfig();
-            sender.sendMessage(ChatColor.GREEN + "Configuration reloaded successfully!");
+            sender.sendMessage(Component.text("Configuration reloaded successfully!", NamedTextColor.GREEN));
         } catch (Exception e) {
-            sender.sendMessage(ChatColor.RED + "An error occurred while reloading the configuration.");
+            sender.sendMessage(Component.text("An error occurred while reloading the configuration.", NamedTextColor.RED));
             plugin.getLogger().severe("Failed to reload configuration: " + e.getMessage());
             e.printStackTrace();
         }
-
         return true;
     }
 
     @Override
-    public java.util.List<String> onTabComplete(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
+    public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return java.util.Collections.emptyList();
     }
 }

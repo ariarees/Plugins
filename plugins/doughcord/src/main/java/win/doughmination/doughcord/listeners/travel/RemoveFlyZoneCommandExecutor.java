@@ -5,7 +5,8 @@
 
 package win.doughmination.doughcord.listeners.travel;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,25 +23,25 @@ public class RemoveFlyZoneCommandExecutor implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+            sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
             return true;
         }
 
         if (!player.hasPermission("dough.flyzone")) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+            sender.sendMessage(Component.text("You do not have permission to use this command!", NamedTextColor.RED));
             return true;
         }
 
         if (args.length != 1) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rmflyzone <name>");
+            sender.sendMessage(Component.text("Usage: /rmflyzone <n>", NamedTextColor.RED));
             return true;
         }
 
         String zoneName = args[0];
         if (flightMain.getCommunalFlyZones().remove(zoneName) != null) {
-            sender.sendMessage(ChatColor.GREEN + "Fly zone '" + zoneName + "' has been removed.");
+            sender.sendMessage(Component.text("Fly zone '" + zoneName + "' has been removed.", NamedTextColor.GREEN));
         } else {
-            sender.sendMessage(ChatColor.RED + "Fly zone '" + zoneName + "' does not exist.");
+            sender.sendMessage(Component.text("Fly zone '" + zoneName + "' does not exist.", NamedTextColor.RED));
         }
 
         return true;

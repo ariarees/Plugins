@@ -5,16 +5,15 @@
 
 package win.doughmination.doughcord.commands;
 
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.command.TabCompleter;
-
 import win.doughmination.doughcord.CordMain;
 
 public class RecipesCommandExecutor implements CommandExecutor, TabCompleter {
@@ -28,21 +27,19 @@ public class RecipesCommandExecutor implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-
-            // Create clickable message
-            TextComponent message = new TextComponent(ChatColor.LIGHT_PURPLE + "Click here to view all spawn egg recipes: ");
-            TextComponent link = new TextComponent(ChatColor.AQUA + "" + ChatColor.UNDERLINE + RECIPES_URL);
-            link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, RECIPES_URL));
-            message.addExtra(link);
-
-            player.spigot().sendMessage(message);
+        if (sender instanceof Player player) {
+            player.sendMessage(
+                Component.text("Click here to view all spawn egg recipes: ", NamedTextColor.LIGHT_PURPLE)
+                    .append(
+                        Component.text(RECIPES_URL, NamedTextColor.AQUA)
+                            .decorate(TextDecoration.UNDERLINED)
+                            .clickEvent(ClickEvent.openUrl(RECIPES_URL))
+                    )
+            );
         } else {
-            // Console output
-            sender.sendMessage(ChatColor.LIGHT_PURPLE + "View all spawn egg recipes at: " + ChatColor.AQUA + RECIPES_URL);
+            sender.sendMessage(Component.text("View all spawn egg recipes at: ", NamedTextColor.LIGHT_PURPLE)
+                .append(Component.text(RECIPES_URL, NamedTextColor.AQUA)));
         }
-
         return true;
     }
 

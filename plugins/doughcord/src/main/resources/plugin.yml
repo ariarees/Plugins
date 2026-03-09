@@ -68,17 +68,9 @@ commands:
     usage: /dough <page>
     permission: dough.use
     aliases: [ ec ]
-  setbase:
-    description: Set your base location
-    usage: /setbase
   base:
-    description: Teleport to your saved base location
-    usage: /base
-  visitbase:
-    description: Teleport to another player's base location
-    usage: /visitbase <player>
-    permission: dough.visitbase
-    permission-message: §cYou don't have permission to use this command!
+    description: Manage your base — teleport, set, name, protect and trust players. Use /base visit <player> (op only) to visit another player's base.
+    usage: /base [tp|set|name|trust|untrust|info|visit]
   kiss:
     description: Kiss another player
     usage: /kiss <player>

@@ -5,13 +5,13 @@
 
 package win.doughmination.doughcord.commands.travel;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-
 import win.doughmination.doughcord.CordMain;
 import win.doughmination.doughcord.listeners.travel.TeleportRequestManager;
 import win.doughmination.api.LibMain;
@@ -31,12 +31,12 @@ public class tpdenyCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player target)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+            sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
             return true;
         }
 
         if (!LibMain.getInstance().canUseCommand(target, "tpdeny")) {
-            target.sendMessage(ChatColor.RED + "You cannot use this command while jailed!");
+            target.sendMessage(Component.text("You cannot use this command while jailed!", NamedTextColor.RED));
             return true;
         }
 
@@ -44,7 +44,7 @@ public class tpdenyCommandExecutor implements CommandExecutor, TabCompleter {
         UUID targetUUID = target.getUniqueId();
 
         if (!manager.hasRequest(targetUUID)) {
-            target.sendMessage(ChatColor.RED + "You have no pending teleport requests to deny.");
+            target.sendMessage(Component.text("You have no pending teleport requests to deny.", NamedTextColor.RED));
             return true;
         }
 
@@ -52,10 +52,14 @@ public class tpdenyCommandExecutor implements CommandExecutor, TabCompleter {
         Player requester = plugin.getServer().getPlayer(request.getRequesterUUID());
 
         if (requester != null && requester.isOnline()) {
-            requester.sendMessage(ChatColor.RED + "Your teleport request to " + ChatColor.AQUA + target.getName() + ChatColor.RED + " was denied.");
+            requester.sendMessage(
+                Component.text("Your teleport request to ", NamedTextColor.RED)
+                    .append(Component.text(target.getName(), NamedTextColor.AQUA))
+                    .append(Component.text(" was denied.", NamedTextColor.RED))
+            );
         }
 
-        target.sendMessage(ChatColor.YELLOW + "You have denied the teleport request.");
+        target.sendMessage(Component.text("You have denied the teleport request.", NamedTextColor.YELLOW));
         manager.removeRequest(targetUUID);
         return true;
     }

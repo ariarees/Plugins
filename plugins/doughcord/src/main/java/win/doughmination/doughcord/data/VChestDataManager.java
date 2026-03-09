@@ -5,19 +5,24 @@
 
 package win.doughmination.doughcord.data;
 
-import com.google.gson.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.Base64;
+import java.util.Map;
+import java.util.UUID;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
-
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
-
-import java.io.*;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Manages per-player VIP chest files at:
@@ -30,6 +35,9 @@ import java.util.UUID;
  *   ...
  * }
  * Only occupied slots are written.
+ *
+ * Uses ItemStack#serializeAsBytes / ItemStack#deserializeBytes (Paper API)
+ * instead of the deprecated BukkitObjectOutputStream/InputStream.
  */
 public class VChestDataManager {
 
@@ -43,9 +51,9 @@ public class VChestDataManager {
         if (!vchestsDir.exists()) vchestsDir.mkdirs();
     }
 
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Load
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     /** Populates the provided Inventory from the player's saved JSON file. */
     public void loadInto(UUID uuid, Inventory inv) {
@@ -78,9 +86,9 @@ public class VChestDataManager {
         }
     }
 
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Save
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     /** Saves every occupied slot from the inventory to the player's JSON file. */
     public void save(UUID uuid, Inventory inv) {
@@ -101,30 +109,27 @@ public class VChestDataManager {
         }
     }
 
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Internal
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     private File fileFor(UUID uuid) {
         return new File(vchestsDir, uuid.toString() + ".json");
     }
 
     private String encodeItem(ItemStack item) {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             BukkitObjectOutputStream boos = new BukkitObjectOutputStream(baos)) {
-            boos.writeObject(item);
-            return Base64Coder.encodeLines(baos.toByteArray());
-        } catch (IOException e) {
+        try {
+            return Base64.getEncoder().encodeToString(item.serializeAsBytes());
+        } catch (Exception e) {
             plugin.getLogger().warning("Could not encode ItemStack: " + e.getMessage());
             return null;
         }
     }
 
     private ItemStack decodeItem(String encoded) {
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(Base64Coder.decodeLines(encoded));
-             BukkitObjectInputStream bois = new BukkitObjectInputStream(bais)) {
-            return (ItemStack) bois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+        try {
+            return ItemStack.deserializeBytes(Base64.getDecoder().decode(encoded));
+        } catch (Exception e) {
             plugin.getLogger().warning("Could not decode ItemStack: " + e.getMessage());
             return null;
         }

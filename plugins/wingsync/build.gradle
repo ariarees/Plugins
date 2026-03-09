@@ -1,15 +1,21 @@
-description = "Plugin to connect your server to Discord"
-
 dependencies {
     compileOnly project(':doughapi')
     implementation 'net.dv8tion:JDA:6.3.1'
-    implementation 'com.google.code.gson:gson:2.13.2'
-}
-
-tasks.named('compileJava') {
-    dependsOn ':doughapi:shadowJar'
+    implementation 'org.postgresql:postgresql:42.7.3'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
 }
 
 shadowJar {
     archiveBaseName.set('WingSync')
+    relocate 'net.dv8tion.jda', 'win.doughmination.libs.jda'
+    relocate 'okhttp3', 'win.doughmination.libs.okhttp3'
+    relocate 'okio', 'win.doughmination.libs.okio'
+    relocate 'com.fasterxml.jackson', 'win.doughmination.libs.jackson'
+    relocate 'org.slf4j', 'win.doughmination.libs.slf4j'
+    relocate 'kotlin', 'win.doughmination.libs.kotlin'
+    relocate 'org.jetbrains', 'win.doughmination.libs.jetbrains'
+    relocate 'org.postgresql', 'win.doughmination.libs.postgresql'
+    relocate 'com.zaxxer', 'win.doughmination.libs.zaxxer'
+    relocate 'waffle', 'win.doughmination.libs.waffle'
+    relocate 'com.ongres', 'win.doughmination.libs.ongres'
 }

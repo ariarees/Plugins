@@ -5,8 +5,9 @@
 
 package win.doughmination.doughcord.listeners.travel;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import win.doughmination.doughcord.CordMain;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -28,7 +29,6 @@ public class FlightListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        // Skip head rotations — only process actual position changes
         if (event.getFrom().getBlockX() == event.getTo().getBlockX()
                 && event.getFrom().getBlockY() == event.getTo().getBlockY()
                 && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) return;
@@ -39,15 +39,13 @@ public class FlightListener implements Listener {
         if (doughPlugin.getConfig().getBoolean("AllFlight")) {
             if (!player.getAllowFlight()) {
                 player.setAllowFlight(true);
-                player.sendMessage(ChatColor.GREEN + "Flight enabled globally.");
+                player.sendMessage(Component.text("Flight enabled globally.", NamedTextColor.GREEN));
             }
             return;
         }
 
         if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) {
-            if (!player.getAllowFlight()) {
-                player.setAllowFlight(true);
-            }
+            if (!player.getAllowFlight()) player.setAllowFlight(true);
             return;
         }
 
@@ -64,7 +62,7 @@ public class FlightListener implements Listener {
         if (inCommunalZone) {
             if (!player.getAllowFlight()) {
                 player.setAllowFlight(true);
-                player.sendMessage(ChatColor.GREEN + "Flight enabled within communal fly zone.");
+                player.sendMessage(Component.text("Flight enabled within communal fly zone.", NamedTextColor.GREEN));
             }
             return;
         }
@@ -77,15 +75,15 @@ public class FlightListener implements Listener {
             if (withinRadius && flightMain.getFlightToggles().getOrDefault(playerUUID, false)) {
                 if (!player.getAllowFlight()) {
                     player.setAllowFlight(true);
-                    player.sendMessage(ChatColor.GREEN + "Flight enabled within base radius.");
+                    player.sendMessage(Component.text("Flight enabled within base radius.", NamedTextColor.GREEN));
                 }
             } else if (!withinRadius && player.getAllowFlight()) {
                 player.setAllowFlight(false);
-                player.sendMessage(ChatColor.RED + "Flight disabled. You left the base radius.");
+                player.sendMessage(Component.text("Flight disabled. You left the base radius.", NamedTextColor.RED));
             }
         } else if (player.getAllowFlight()) {
             player.setAllowFlight(false);
-            player.sendMessage(ChatColor.RED + "Flight disabled. You do not have a valid base.");
+            player.sendMessage(Component.text("Flight disabled. You do not have a valid base.", NamedTextColor.RED));
         }
     }
 }

@@ -5,8 +5,9 @@
 
 package win.doughmination.doughcord.commands.moderation;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import win.doughmination.doughcord.CordMain;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,11 +23,8 @@ public class DoughCommandExecutor implements CommandExecutor, TabCompleter {
 
     private final CordMain plugin;
 
-    private static final String PLUGIN_NAME = ChatColor.AQUA + "Doughminationcord";
     private static final List<String> CATEGORIES = Arrays.asList("travel", "moderation", "roleplay", "chests", "other");
-
-    // category name -> formatted help text
-    private final Map<String, String> categoryHelp = new LinkedHashMap<>();
+    private final Map<String, List<Component>> categoryHelp = new LinkedHashMap<>();
 
     public DoughCommandExecutor(CordMain plugin) {
         this.plugin = plugin;
@@ -34,87 +32,97 @@ public class DoughCommandExecutor implements CommandExecutor, TabCompleter {
     }
 
     private void buildHelp() {
-        categoryHelp.put("travel",
-                header("travel") +
-                entry("/spawn",                    "Teleport to the server spawn.") +
-                entry("/setspawn",                 "Set the server spawn location.") +
-                entry("/base",                     "Teleport to your saved base location.") +
-                entry("/setbase",                  "Set your personal base location.") +
-                entry("/visitbase <player>",       "Visit another player's base.") +
-                entry("/rtp",                      "Teleport to a random location.") +
-                entry("/tpa <player>",             "Request to teleport to another player.") +
-                entry("/tpaccept",                 "Accept a pending teleport request.") +
-                entry("/tpdeny",                   "Deny a pending teleport request.") +
-                entry("/basefly <on|off>",         "Toggle flight within your base radius.") +
-                entry("/flyzone <x1 y1 z1 x2 y2 z2 n>", "Create a communal fly zone.") +
-                entry("/rmflyzone <n>",            "Remove a communal fly zone.")
-        );
+        categoryHelp.put("travel", List.of(
+            header("travel"),
+            entry("/base [tp]",                    "Teleport to your saved base."),
+            entry("/base set",                     "Set your base to your current location."),
+            entry("/base name <n>",                "Name your base (30min cooldown)."),
+            entry("/base trust <player>",          "Allow a player to interact at your base."),
+            entry("/base untrust <player>",        "Revoke a player's access to your base."),
+            entry("/base info",                    "View your base details and trusted players."),
+            entry("/base visit <player>",          "[Op] Teleport to any player's base."),
+            entry("/spawn",                        "Teleport to the server spawn."),
+            entry("/setspawn",                     "Set the server spawn location."),
+            entry("/rtp",                          "Teleport to a random location."),
+            entry("/tpa <player>",                 "Request to teleport to another player."),
+            entry("/tpaccept",                     "Accept a pending teleport request."),
+            entry("/tpdeny",                       "Deny a pending teleport request."),
+            entry("/basefly <on|off>",             "Toggle flight within your base radius."),
+            entry("/flyzone <x1 y1 z1 x2 y2 z2 n>", "Create a communal fly zone."),
+            entry("/rmflyzone <n>",                "Remove a communal fly zone.")
+        ));
 
-        categoryHelp.put("moderation",
-                header("moderation") +
-                entry("/doughban <player> [reason]", "Ban a player from the server.") +
-                entry("/unban <player>",             "Unban a player.") +
-                entry("/banlist",                    "View all banned players.") +
-                entry("/doughreload",                "Reload the plugin configuration.") +
-                entry("/version",                    "Show the current plugin version.")
-        );
+        categoryHelp.put("moderation", List.of(
+            header("moderation"),
+            entry("/doughban <player> [reason]",   "Ban a player from the server."),
+            entry("/unban <player>",               "Unban a player."),
+            entry("/banlist",                      "View all banned players."),
+            entry("/doughreload",                  "Reload the plugin configuration."),
+            entry("/version",                      "Show the current plugin version.")
+        ));
 
-        categoryHelp.put("roleplay",
-                header("roleplay") +
-                entry("/meow",          "Send a cute cat message.") +
-                entry("/bark",          "Send a cute dog message.") +
-                entry("/kiss <player>", "Send a kiss to another player.")
-        );
+        categoryHelp.put("roleplay", List.of(
+            header("roleplay"),
+            entry("/meow",          "Send a cute cat message."),
+            entry("/bark",          "Send a cute dog message."),
+            entry("/kiss <player>", "Send a kiss to another player.")
+        ));
 
-        categoryHelp.put("chests",
-                header("chests") +
-                entry("/echest",                          "Remotely open your ender chest.") +
-                entry("/vchest",                          "Remotely open your VIP chest.") +
-                entry("/chest <echest|vchest|inv> <player>", "Inspect a player's chest or inventory.")
-        );
+        categoryHelp.put("chests", List.of(
+            header("chests"),
+            entry("/echest",                             "Remotely open your ender chest."),
+            entry("/vchest",                             "Remotely open your VIP chest."),
+            entry("/chest <echest|vchest|inv> <player>", "Inspect a player's chest or inventory.")
+        ));
 
-        categoryHelp.put("other",
-                header("other") +
-                entry("/playtime",             "Check your total playtime.") +
-                entry("/veinminer <ores|trees>","Toggle vein mining for ores or trees.") +
-                entry("/recipes",              "Get the URL to view all spawn egg recipes.") +
-                entry("/growthpotion",         "Gives you a growth potion.") +
-                entry("/shrinkpotion",         "Gives you a shrink potion.")
-        );
+        categoryHelp.put("other", List.of(
+            header("other"),
+            entry("/playtime",              "Check your total playtime."),
+            entry("/veinminer <ores|trees>","Toggle vein mining for ores or trees."),
+            entry("/recipes",               "Get the URL to view all spawn egg recipes."),
+            entry("/growthpotion",          "Gives you a growth potion."),
+            entry("/shrinkpotion",          "Gives you a shrink potion.")
+        ));
     }
 
-    private String header(String category) {
-        return ChatColor.GOLD + "════ " + PLUGIN_NAME + ChatColor.GOLD + " — " +
-                ChatColor.YELLOW + category + ChatColor.GOLD + " ════\n";
+    private Component header(String category) {
+        return Component.text("════ ", NamedTextColor.GOLD)
+            .append(Component.text("Doughminationcord", NamedTextColor.AQUA))
+            .append(Component.text(" — ", NamedTextColor.GOLD))
+            .append(Component.text(category, NamedTextColor.YELLOW))
+            .append(Component.text(" ════", NamedTextColor.GOLD));
     }
 
-    private String entry(String cmd, String desc) {
-        return ChatColor.AQUA + cmd + ChatColor.DARK_GRAY + " — " + ChatColor.WHITE + desc + "\n";
+    private Component entry(String cmd, String desc) {
+        return Component.text("  " + cmd, NamedTextColor.AQUA)
+            .append(Component.text(" — ", NamedTextColor.DARK_GRAY))
+            .append(Component.text(desc, NamedTextColor.WHITE));
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            // Show category list
-            StringBuilder sb = new StringBuilder();
-            sb.append(ChatColor.GOLD + "════ " + PLUGIN_NAME + ChatColor.GOLD + " Help ════\n");
-            sb.append(ChatColor.WHITE + "Use " + ChatColor.AQUA + "/dough <category>" + ChatColor.WHITE + " to view commands.\n");
+            sender.sendMessage(Component.text("════ ", NamedTextColor.GOLD)
+                .append(Component.text("Doughminationcord", NamedTextColor.AQUA))
+                .append(Component.text(" Help ════", NamedTextColor.GOLD)));
+            sender.sendMessage(Component.text("Use ", NamedTextColor.WHITE)
+                .append(Component.text("/dough <category>", NamedTextColor.AQUA))
+                .append(Component.text(" to view commands.", NamedTextColor.WHITE)));
             for (String cat : CATEGORIES) {
-                sb.append(ChatColor.YELLOW + "  • " + ChatColor.AQUA + cat + "\n");
+                sender.sendMessage(Component.text("  • ", NamedTextColor.YELLOW)
+                    .append(Component.text(cat, NamedTextColor.AQUA)));
             }
-            sender.sendMessage(sb.toString().stripTrailing());
             return true;
         }
 
         String cat = args[0].toLowerCase();
-        String help = categoryHelp.get(cat);
-        if (help == null) {
-            sender.sendMessage(ChatColor.RED + "Unknown category '" + args[0] + "'. " +
-                    ChatColor.WHITE + "Available: " + ChatColor.AQUA + String.join(", ", CATEGORIES));
+        List<Component> lines = categoryHelp.get(cat);
+        if (lines == null) {
+            sender.sendMessage(Component.text("Unknown category '" + args[0] + "'. Available: " + String.join(", ", CATEGORIES), NamedTextColor.RED));
             return true;
         }
 
-        sender.sendMessage(help.stripTrailing());
+        lines.forEach(sender::sendMessage);
         return true;
     }
 

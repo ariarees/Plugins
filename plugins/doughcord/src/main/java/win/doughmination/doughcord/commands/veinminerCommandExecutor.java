@@ -5,22 +5,24 @@
 
 package win.doughmination.doughcord.commands;
 
-import win.doughmination.doughcord.CordMain;
-import win.doughmination.doughcord.data.PlayerDataManager;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import win.doughmination.doughcord.CordMain;
+import win.doughmination.doughcord.data.PlayerDataManager;
 
 public class veinminerCommandExecutor implements CommandExecutor, TabCompleter {
 
@@ -39,12 +41,12 @@ public class veinminerCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+            sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
             return true;
         }
 
         if (args.length != 1) {
-            player.sendMessage(ChatColor.AQUA + "Usage: /veinminer <ores|trees>");
+            player.sendMessage(Component.text("Usage: /veinminer <ores|trees>", NamedTextColor.AQUA));
             return true;
         }
 
@@ -56,17 +58,27 @@ public class veinminerCommandExecutor implements CommandExecutor, TabCompleter {
                 boolean now = !oreVeinMinerEnabled.get(uuid);
                 oreVeinMinerEnabled.put(uuid, now);
                 dataManager.saveVeinminer(uuid, now, treeVeinMinerEnabled.get(uuid));
-                player.sendMessage(ChatColor.GREEN + "VeinMining for ores is now " +
-                        (now ? ChatColor.GREEN + "enabled" : ChatColor.RED + "disabled") + ChatColor.GREEN + ".");
+                player.sendMessage(
+                        Component.text("VeinMining for ores is now ", NamedTextColor.GREEN)
+                                .append(now
+                                        ? Component.text("enabled", NamedTextColor.GREEN)
+                                        : Component.text("disabled", NamedTextColor.RED))
+                                .append(Component.text(".", NamedTextColor.GREEN))
+                );
             }
             case "trees" -> {
                 boolean now = !treeVeinMinerEnabled.get(uuid);
                 treeVeinMinerEnabled.put(uuid, now);
                 dataManager.saveVeinminer(uuid, oreVeinMinerEnabled.get(uuid), now);
-                player.sendMessage(ChatColor.GREEN + "VeinMining for trees is now " +
-                        (now ? ChatColor.GREEN + "enabled" : ChatColor.RED + "disabled") + ChatColor.GREEN + ".");
+                player.sendMessage(
+                        Component.text("VeinMining for trees is now ", NamedTextColor.GREEN)
+                                .append(now
+                                        ? Component.text("enabled", NamedTextColor.GREEN)
+                                        : Component.text("disabled", NamedTextColor.RED))
+                                .append(Component.text(".", NamedTextColor.GREEN))
+                );
             }
-            default -> player.sendMessage(ChatColor.RED + "Invalid option. Use /veinminer <ores|trees>");
+            default -> player.sendMessage(Component.text("Invalid option. Use /veinminer <ores|trees>", NamedTextColor.RED));
         }
         return true;
     }

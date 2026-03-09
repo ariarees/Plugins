@@ -33,28 +33,18 @@ subprojects {
         compileOnly 'io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT'
         implementation 'org.bstats:bstats-bukkit:3.2.1'
         implementation 'com.google.code.gson:gson:2.13.2'
-        implementation 'org.postgresql:postgresql:42.7.3'
     }
 
     compileJava {
         options.encoding = 'UTF-8'
+        options.compilerArgs << '-Xlint:deprecation' // Checking for depreciated stuff
     }
 
     shadowJar {
         archiveClassifier.set('')
         relocate 'org.bstats', 'win.doughmination.libs.bstats'
         relocate 'com.google.gson', 'win.doughmination.libs.gson'
-        relocate 'net.dv8tion.jda', 'win.doughmination.libs.jda'
-        relocate 'okhttp3', 'win.doughmination.libs.okhttp3'
-        relocate 'okio', 'win.doughmination.libs.okio'
-        relocate 'com.fasterxml.jackson', 'win.doughmination.libs.jackson'
         relocate 'org.slf4j', 'win.doughmination.libs.slf4j'
-        relocate 'kotlin', 'win.doughmination.libs.kotlin'
-        relocate 'org.jetbrains', 'win.doughmination.libs.jetbrains'
-        relocate 'org.postgresql', 'win.doughmination.libs.postgresql'
-        relocate 'com.zaxxer', 'win.doughmination.libs.zaxxer'
-        relocate 'waffle', 'win.doughmination.libs.waffle'
-        relocate 'com.ongres', 'win.doughmination.libs.ongres'
 
         mergeServiceFiles()
 

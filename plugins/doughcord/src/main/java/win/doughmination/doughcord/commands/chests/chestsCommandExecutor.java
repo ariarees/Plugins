@@ -5,8 +5,17 @@
 
 package win.doughmination.doughcord.commands.chests;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,22 +23,16 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
 import win.doughmination.doughcord.CordMain;
 import win.doughmination.doughcord.data.VChestDataManager;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * /chest <echest|vchest|inv> <player> [take <slot>]
  *
  * Opens a read-only snapshot of a target player's ender chest, VIP chest,
  * or live inventory for moderation purposes.
- * The optional "take" action removes an item from the specified slot and logs
- * the action, for use when illegal items are found.
+ * The optional "take" action removes an item from the specified slot.
  *
  * Requires permission: dough.chest.inspect
  * Take action requires: dough.chest.take
@@ -49,15 +52,13 @@ public class chestsCommandExecutor implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
         if (!sender.hasPermission(PERM_INSPECT)) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to inspect player inventories!");
+            sender.sendMessage(Component.text("You do not have permission to inspect player inventories!", NamedTextColor.RED));
             return true;
         }
 
-        // /chest <echest|vchest|inv> <player> [take <slot>]
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /chest <echest|vchest|inv> <player> [take <slot>]");
+            sender.sendMessage(Component.text("Usage: /chest <echest|vchest|inv> <player> [take <slot>]", NamedTextColor.RED));
             return true;
         }
 
@@ -65,13 +66,12 @@ public class chestsCommandExecutor implements CommandExecutor, TabCompleter {
         String targetName = args[1];
 
         if (!subCommand.equals("echest") && !subCommand.equals("vchest") && !subCommand.equals("inv")) {
-            sender.sendMessage(ChatColor.RED + "Unknown type '" + args[0] + "'. Use: echest, vchest, or inv");
+            sender.sendMessage(Component.text("Unknown type '" + args[0] + "'. Use: echest, vchest, or inv", NamedTextColor.RED));
             return true;
         }
 
-        // Must be a player to open an inventory GUI
         if (!(sender instanceof Player inspector)) {
-            sender.sendMessage(ChatColor.RED + "Console cannot open inventory GUIs. Use an in-game account.");
+            sender.sendMessage(Component.text("Console cannot open inventory GUIs. Use an in-game account.", NamedTextColor.RED));
             return true;
         }
 
@@ -81,32 +81,32 @@ public class chestsCommandExecutor implements CommandExecutor, TabCompleter {
         String resolvedName;
 
         if (target != null) {
-            targetUUID = target.getUniqueId();
+            targetUUID   = target.getUniqueId();
             resolvedName = target.getName();
         } else {
             @SuppressWarnings("deprecation")
-            org.bukkit.OfflinePlayer offline = Bukkit.getOfflinePlayer(targetName);
+            OfflinePlayer offline = Bukkit.getOfflinePlayer(targetName);
             if (!offline.hasPlayedBefore()) {
-                inspector.sendMessage(ChatColor.RED + "Player '" + targetName + "' has never joined this server.");
+                inspector.sendMessage(Component.text("Player '" + targetName + "' has never joined this server.", NamedTextColor.RED));
                 return true;
             }
-            targetUUID = offline.getUniqueId();
+            targetUUID   = offline.getUniqueId();
             resolvedName = offline.getName() != null ? offline.getName() : targetName;
         }
 
-        // Check for optional take action: /chest <type> <player> take <slot>
-        boolean isTake = args.length >= 4 && args[2].equalsIgnoreCase("take");
-        int takeSlot = -1;
+        // Optional take action: /chest <type> <player> take <slot>
+        boolean isTake   = args.length >= 4 && args[2].equalsIgnoreCase("take");
+        int     takeSlot = -1;
 
         if (isTake) {
             if (!inspector.hasPermission(PERM_TAKE)) {
-                inspector.sendMessage(ChatColor.RED + "You do not have permission to take items from player inventories!");
+                inspector.sendMessage(Component.text("You do not have permission to take items from player inventories!", NamedTextColor.RED));
                 return true;
             }
             try {
                 takeSlot = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
-                inspector.sendMessage(ChatColor.RED + "Invalid slot number '" + args[3] + "'. Must be an integer.");
+                inspector.sendMessage(Component.text("Invalid slot number '" + args[3] + "'. Must be an integer.", NamedTextColor.RED));
                 return true;
             }
         }
@@ -114,108 +114,109 @@ public class chestsCommandExecutor implements CommandExecutor, TabCompleter {
         switch (subCommand) {
             case "echest" -> {
                 if (isTake) takeFromEChest(inspector, target, targetUUID, resolvedName, takeSlot);
-                else         openEChest(inspector, target, targetUUID, resolvedName);
+                else        openEChest(inspector, target, targetUUID, resolvedName);
             }
             case "vchest" -> {
                 if (isTake) takeFromVChest(inspector, targetUUID, resolvedName, takeSlot);
-                else         openVChest(inspector, targetUUID, resolvedName);
+                else        openVChest(inspector, targetUUID, resolvedName);
             }
             case "inv" -> {
                 if (isTake) takeFromInv(inspector, target, targetUUID, resolvedName, takeSlot);
-                else         openInv(inspector, target, targetUUID, resolvedName);
+                else        openInv(inspector, target, targetUUID, resolvedName);
             }
         }
 
         return true;
     }
 
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Ender Chest — player must be online
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     private void openEChest(Player inspector, Player target, UUID targetUUID, String targetName) {
         if (target == null || !target.isOnline()) {
-            inspector.sendMessage(ChatColor.RED + targetName + " must be online to inspect their ender chest.");
+            inspector.sendMessage(Component.text(targetName + " must be online to inspect their ender chest.", NamedTextColor.RED));
             return;
         }
 
-        Inventory snapshot = Bukkit.createInventory(
-                null,
-                target.getEnderChest().getSize(),
-                ChatColor.DARK_RED + "⚑ [INSPECT] " + targetName + "'s E-Chest"
-        );
+        Inventory snapshot = Bukkit.createInventory(null, target.getEnderChest().getSize(),
+                Component.text("⚑ [INSPECT] " + targetName + "'s E-Chest", NamedTextColor.DARK_RED));
         snapshot.setContents(target.getEnderChest().getContents().clone());
 
         inspector.openInventory(snapshot);
-        inspector.sendMessage(ChatColor.GOLD + "Inspecting " + ChatColor.YELLOW + targetName
-                + ChatColor.GOLD + "'s ender chest. " + ChatColor.GRAY + "(Read-only snapshot)");
-        plugin.getLogger().info("[chest] " + inspector.getName()
-                + " inspected " + targetName + "'s echest (UUID: " + targetUUID + ")");
+        inspector.sendMessage(
+                Component.text("Inspecting ", NamedTextColor.GOLD)
+                        .append(Component.text(targetName, NamedTextColor.YELLOW))
+                        .append(Component.text("'s ender chest. ", NamedTextColor.GOLD))
+                        .append(Component.text("(Read-only snapshot)", NamedTextColor.GRAY))
+        );
+        plugin.getLogger().info("[chest] " + inspector.getName() + " inspected " + targetName + "'s echest (UUID: " + targetUUID + ")");
     }
 
     private void takeFromEChest(Player inspector, Player target, UUID targetUUID, String targetName, int slot) {
         if (target == null || !target.isOnline()) {
-            inspector.sendMessage(ChatColor.RED + targetName + " must be online to take from their ender chest.");
+            inspector.sendMessage(Component.text(targetName + " must be online to take from their ender chest.", NamedTextColor.RED));
             return;
         }
 
         Inventory echest = target.getEnderChest();
         if (slot < 0 || slot >= echest.getSize()) {
-            inspector.sendMessage(ChatColor.RED + "Slot " + slot + " is out of range (0-" + (echest.getSize() - 1) + ").");
+            inspector.sendMessage(Component.text("Slot " + slot + " is out of range (0-" + (echest.getSize() - 1) + ").", NamedTextColor.RED));
             return;
         }
 
         ItemStack item = echest.getItem(slot);
         if (item == null || item.getType().isAir()) {
-            inspector.sendMessage(ChatColor.YELLOW + "Slot " + slot + " in " + targetName + "'s ender chest is empty.");
+            inspector.sendMessage(Component.text("Slot " + slot + " in " + targetName + "'s ender chest is empty.", NamedTextColor.YELLOW));
             return;
         }
 
         String itemDesc = item.getAmount() + "x " + item.getType().name();
         echest.setItem(slot, null);
 
-        inspector.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.WHITE + itemDesc
-                + ChatColor.GREEN + " from " + ChatColor.YELLOW + targetName
-                + ChatColor.GREEN + "'s ender chest (slot " + slot + ").");
-        plugin.getLogger().warning("[chest:take] " + inspector.getName()
-                + " removed " + itemDesc + " from " + targetName
-                + "'s echest slot " + slot + " (UUID: " + targetUUID + ")");
-
-        target.sendMessage(ChatColor.RED + "A staff member has removed an item from your ender chest.");
+        inspector.sendMessage(
+                Component.text("Removed ", NamedTextColor.GREEN)
+                        .append(Component.text(itemDesc, NamedTextColor.WHITE))
+                        .append(Component.text(" from ", NamedTextColor.GREEN))
+                        .append(Component.text(targetName, NamedTextColor.YELLOW))
+                        .append(Component.text("'s ender chest (slot " + slot + ").", NamedTextColor.GREEN))
+        );
+        plugin.getLogger().warning("[chest:take] " + inspector.getName() + " removed " + itemDesc
+                + " from " + targetName + "'s echest slot " + slot + " (UUID: " + targetUUID + ")");
+        target.sendMessage(Component.text("A staff member has removed an item from your ender chest.", NamedTextColor.RED));
     }
 
-    // -----------------------------------------------------------------------
-    // VIP Chest — loaded from disk, works for offline players too
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // VIP Chest — works for offline players too
+    // -------------------------------------------------------------------------
 
     private void openVChest(Player inspector, UUID targetUUID, String targetName) {
-        Inventory snapshot = Bukkit.createInventory(
-                null,
-                54,
-                ChatColor.DARK_RED + "⚑ [INSPECT] " + targetName + "'s V-Chest"
-        );
+        Inventory snapshot = Bukkit.createInventory(null, 54,
+                Component.text("⚑ [INSPECT] " + targetName + "'s V-Chest", NamedTextColor.DARK_RED));
         vChestDataManager.loadInto(targetUUID, snapshot);
 
         inspector.openInventory(snapshot);
-        inspector.sendMessage(ChatColor.GOLD + "Inspecting " + ChatColor.YELLOW + targetName
-                + ChatColor.GOLD + "'s VIP chest. " + ChatColor.GRAY + "(Read-only snapshot)");
-        plugin.getLogger().info("[chest] " + inspector.getName()
-                + " inspected " + targetName + "'s vchest (UUID: " + targetUUID + ")");
+        inspector.sendMessage(
+                Component.text("Inspecting ", NamedTextColor.GOLD)
+                        .append(Component.text(targetName, NamedTextColor.YELLOW))
+                        .append(Component.text("'s VIP chest. ", NamedTextColor.GOLD))
+                        .append(Component.text("(Read-only snapshot)", NamedTextColor.GRAY))
+        );
+        plugin.getLogger().info("[chest] " + inspector.getName() + " inspected " + targetName + "'s vchest (UUID: " + targetUUID + ")");
     }
 
     private void takeFromVChest(Player inspector, UUID targetUUID, String targetName, int slot) {
         if (slot < 0 || slot >= 54) {
-            inspector.sendMessage(ChatColor.RED + "Slot " + slot + " is out of range (0-53).");
+            inspector.sendMessage(Component.text("Slot " + slot + " is out of range (0-53).", NamedTextColor.RED));
             return;
         }
 
-        // Load a live copy, remove the item, then save it back
-        Inventory live = Bukkit.createInventory(null, 54, "vchest_edit");
+        Inventory live = Bukkit.createInventory(null, 54, Component.text("vchest_edit"));
         vChestDataManager.loadInto(targetUUID, live);
 
         ItemStack item = live.getItem(slot);
         if (item == null || item.getType().isAir()) {
-            inspector.sendMessage(ChatColor.YELLOW + "Slot " + slot + " in " + targetName + "'s VIP chest is empty.");
+            inspector.sendMessage(Component.text("Slot " + slot + " in " + targetName + "'s VIP chest is empty.", NamedTextColor.YELLOW));
             return;
         }
 
@@ -223,35 +224,34 @@ public class chestsCommandExecutor implements CommandExecutor, TabCompleter {
         live.setItem(slot, null);
         vChestDataManager.save(targetUUID, live);
 
-        inspector.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.WHITE + itemDesc
-                + ChatColor.GREEN + " from " + ChatColor.YELLOW + targetName
-                + ChatColor.GREEN + "'s VIP chest (slot " + slot + ").");
-        plugin.getLogger().warning("[chest:take] " + inspector.getName()
-                + " removed " + itemDesc + " from " + targetName
-                + "'s vchest slot " + slot + " (UUID: " + targetUUID + ")");
+        inspector.sendMessage(
+                Component.text("Removed ", NamedTextColor.GREEN)
+                        .append(Component.text(itemDesc, NamedTextColor.WHITE))
+                        .append(Component.text(" from ", NamedTextColor.GREEN))
+                        .append(Component.text(targetName, NamedTextColor.YELLOW))
+                        .append(Component.text("'s VIP chest (slot " + slot + ").", NamedTextColor.GREEN))
+        );
+        plugin.getLogger().warning("[chest:take] " + inspector.getName() + " removed " + itemDesc
+                + " from " + targetName + "'s vchest slot " + slot + " (UUID: " + targetUUID + ")");
 
         Player online = Bukkit.getPlayer(targetUUID);
         if (online != null && online.isOnline()) {
-            online.sendMessage(ChatColor.RED + "A staff member has removed an item from your VIP chest.");
+            online.sendMessage(Component.text("A staff member has removed an item from your VIP chest.", NamedTextColor.RED));
         }
     }
 
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Player Inventory — player must be online
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     private void openInv(Player inspector, Player target, UUID targetUUID, String targetName) {
         if (target == null || !target.isOnline()) {
-            inspector.sendMessage(ChatColor.RED + targetName + " must be online to inspect their inventory.");
+            inspector.sendMessage(Component.text(targetName + " must be online to inspect their inventory.", NamedTextColor.RED));
             return;
         }
 
-        // 36-slot snapshot of the main inventory (hotbar + storage, excludes armour/offhand)
-        Inventory snapshot = Bukkit.createInventory(
-                null,
-                36,
-                ChatColor.DARK_RED + "⚑ [INSPECT] " + targetName + "'s Inv"
-        );
+        Inventory snapshot = Bukkit.createInventory(null, 36,
+                Component.text("⚑ [INSPECT] " + targetName + "'s Inv", NamedTextColor.DARK_RED));
         ItemStack[] mainContents = new ItemStack[36];
         for (int i = 0; i < 36; i++) {
             mainContents[i] = target.getInventory().getItem(i);
@@ -259,46 +259,50 @@ public class chestsCommandExecutor implements CommandExecutor, TabCompleter {
         snapshot.setContents(mainContents);
 
         inspector.openInventory(snapshot);
-        inspector.sendMessage(ChatColor.GOLD + "Inspecting " + ChatColor.YELLOW + targetName
-                + ChatColor.GOLD + "'s inventory. " + ChatColor.GRAY + "(Read-only snapshot — slots 0-35 main inv, 36-39 armour, 40 offhand)");
-        plugin.getLogger().info("[chest] " + inspector.getName()
-                + " inspected " + targetName + "'s inventory (UUID: " + targetUUID + ")");
+        inspector.sendMessage(
+                Component.text("Inspecting ", NamedTextColor.GOLD)
+                        .append(Component.text(targetName, NamedTextColor.YELLOW))
+                        .append(Component.text("'s inventory. ", NamedTextColor.GOLD))
+                        .append(Component.text("(Read-only snapshot — slots 0-35 main inv, 36-39 armour, 40 offhand)", NamedTextColor.GRAY))
+        );
+        plugin.getLogger().info("[chest] " + inspector.getName() + " inspected " + targetName + "'s inventory (UUID: " + targetUUID + ")");
     }
 
     private void takeFromInv(Player inspector, Player target, UUID targetUUID, String targetName, int slot) {
         if (target == null || !target.isOnline()) {
-            inspector.sendMessage(ChatColor.RED + targetName + " must be online to take from their inventory.");
+            inspector.sendMessage(Component.text(targetName + " must be online to take from their inventory.", NamedTextColor.RED));
             return;
         }
 
-        // 0-35: main inventory, 36-39: armour, 40: offhand
         if (slot < 0 || slot > 40) {
-            inspector.sendMessage(ChatColor.RED + "Slot " + slot + " is out of range (0-40). Main: 0-35, Armour: 36-39, Offhand: 40");
+            inspector.sendMessage(Component.text("Slot " + slot + " is out of range (0-40). Main: 0-35, Armour: 36-39, Offhand: 40", NamedTextColor.RED));
             return;
         }
 
         ItemStack item = target.getInventory().getItem(slot);
         if (item == null || item.getType().isAir()) {
-            inspector.sendMessage(ChatColor.YELLOW + "Slot " + slot + " in " + targetName + "'s inventory is empty.");
+            inspector.sendMessage(Component.text("Slot " + slot + " in " + targetName + "'s inventory is empty.", NamedTextColor.YELLOW));
             return;
         }
 
         String itemDesc = item.getAmount() + "x " + item.getType().name();
         target.getInventory().setItem(slot, null);
 
-        inspector.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.WHITE + itemDesc
-                + ChatColor.GREEN + " from " + ChatColor.YELLOW + targetName
-                + ChatColor.GREEN + "'s inventory (slot " + slot + ").");
-        plugin.getLogger().warning("[chest:take] " + inspector.getName()
-                + " removed " + itemDesc + " from " + targetName
-                + "'s inventory slot " + slot + " (UUID: " + targetUUID + ")");
-
-        target.sendMessage(ChatColor.RED + "A staff member has removed an item from your inventory.");
+        inspector.sendMessage(
+                Component.text("Removed ", NamedTextColor.GREEN)
+                        .append(Component.text(itemDesc, NamedTextColor.WHITE))
+                        .append(Component.text(" from ", NamedTextColor.GREEN))
+                        .append(Component.text(targetName, NamedTextColor.YELLOW))
+                        .append(Component.text("'s inventory (slot " + slot + ").", NamedTextColor.GREEN))
+        );
+        plugin.getLogger().warning("[chest:take] " + inspector.getName() + " removed " + itemDesc
+                + " from " + targetName + "'s inventory slot " + slot + " (UUID: " + targetUUID + ")");
+        target.sendMessage(Component.text("A staff member has removed an item from your inventory.", NamedTextColor.RED));
     }
 
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Tab completion
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {

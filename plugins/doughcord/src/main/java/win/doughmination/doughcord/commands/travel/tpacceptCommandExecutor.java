@@ -5,13 +5,13 @@
 
 package win.doughmination.doughcord.commands.travel;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-
 import win.doughmination.doughcord.CordMain;
 import win.doughmination.doughcord.listeners.travel.TeleportRequestManager;
 import win.doughmination.api.LibMain;
@@ -31,12 +31,12 @@ public class tpacceptCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player target)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command!");
+            sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
             return true;
         }
 
         if (!LibMain.getInstance().canUseCommand(target, "tpaccept")) {
-            target.sendMessage(ChatColor.RED + "You cannot use this command while jailed!");
+            target.sendMessage(Component.text("You cannot use this command while jailed!", NamedTextColor.RED));
             return true;
         }
 
@@ -44,7 +44,7 @@ public class tpacceptCommandExecutor implements CommandExecutor, TabCompleter {
         UUID targetUUID = target.getUniqueId();
 
         if (!manager.hasRequest(targetUUID)) {
-            target.sendMessage(ChatColor.RED + "You have no pending teleport requests.");
+            target.sendMessage(Component.text("You have no pending teleport requests.", NamedTextColor.RED));
             return true;
         }
 
@@ -52,7 +52,7 @@ public class tpacceptCommandExecutor implements CommandExecutor, TabCompleter {
         Player requester = plugin.getServer().getPlayer(request.getRequesterUUID());
 
         if (requester == null || !requester.isOnline()) {
-            target.sendMessage(ChatColor.RED + "The requester is no longer online.");
+            target.sendMessage(Component.text("The requester is no longer online.", NamedTextColor.RED));
             manager.removeRequest(targetUUID);
             return true;
         }
@@ -60,8 +60,16 @@ public class tpacceptCommandExecutor implements CommandExecutor, TabCompleter {
         requester.teleport(target.getLocation());
         manager.removeRequest(targetUUID);
 
-        requester.sendMessage(ChatColor.GREEN + "Teleport request accepted by " + ChatColor.AQUA + target.getName() + ChatColor.GREEN + "!");
-        target.sendMessage(ChatColor.GREEN + "You have accepted the teleport request from " + ChatColor.AQUA + requester.getName() + ChatColor.GREEN + ".");
+        requester.sendMessage(
+            Component.text("Teleport request accepted by ", NamedTextColor.GREEN)
+                .append(Component.text(target.getName(), NamedTextColor.AQUA))
+                .append(Component.text("!", NamedTextColor.GREEN))
+        );
+        target.sendMessage(
+            Component.text("You have accepted the teleport request from ", NamedTextColor.GREEN)
+                .append(Component.text(requester.getName(), NamedTextColor.AQUA))
+                .append(Component.text(".", NamedTextColor.GREEN))
+        );
         return true;
     }
 

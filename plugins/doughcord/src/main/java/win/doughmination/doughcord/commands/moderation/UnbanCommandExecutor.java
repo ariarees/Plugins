@@ -5,8 +5,9 @@
 
 package win.doughmination.doughcord.commands.moderation;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,19 +34,18 @@ public class UnbanCommandExecutor implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("dough.unban")) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
+            sender.sendMessage(Component.text("You do not have permission to use this command!", NamedTextColor.RED));
             return true;
         }
 
         if (args.length < 1) {
-            sender.sendMessage(ChatColor.RED + "Usage: /unban <player>");
+            sender.sendMessage(Component.text("Usage: /unban <player>", NamedTextColor.RED));
             return true;
         }
 
         String targetName = args[0];
         LibMain doughminationAPI = LibMain.getInstance();
 
-        // Find the banned player by name
         UUID targetUUID = null;
         for (Map.Entry<UUID, BanData> entry : doughminationAPI.getAllBans().entrySet()) {
             if (entry.getValue().getPlayerName().equalsIgnoreCase(targetName)) {
@@ -54,7 +54,6 @@ public class UnbanCommandExecutor implements CommandExecutor, TabCompleter {
             }
         }
 
-        // If not found by name, try as UUID or offline player
         if (targetUUID == null) {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(targetName);
             if (doughminationAPI.isPlayerBanned(offlinePlayer.getUniqueId())) {
@@ -63,45 +62,34 @@ public class UnbanCommandExecutor implements CommandExecutor, TabCompleter {
         }
 
         if (targetUUID == null || !doughminationAPI.isPlayerBanned(targetUUID)) {
-            sender.sendMessage(ChatColor.RED + targetName + " is not banned!");
+            sender.sendMessage(Component.text(targetName + " is not banned!", NamedTextColor.RED));
             return true;
         }
 
-        // Get unbanner name
-        String unbannedBy;
-        if (sender instanceof Player player) {
-            unbannedBy = player.getName();
-        } else {
-            unbannedBy = "Console";
-        }
-
-        // Execute the unban via DoughminationAPI
+        String unbannedBy = (sender instanceof Player player) ? player.getName() : "Console";
         doughminationAPI.unbanPlayer(targetUUID, unbannedBy);
 
-        // Broadcast the unban
-        Bukkit.broadcastMessage(ChatColor.GREEN + "✓ " + ChatColor.WHITE + targetName +
-                ChatColor.GREEN + " has been unbanned by " + ChatColor.WHITE + unbannedBy +
-                ChatColor.GREEN + "!");
-
+        Bukkit.broadcast(
+            Component.text("✓ ", NamedTextColor.GREEN)
+                .append(Component.text(targetName, NamedTextColor.WHITE))
+                .append(Component.text(" has been unbanned by ", NamedTextColor.GREEN))
+                .append(Component.text(unbannedBy, NamedTextColor.WHITE))
+                .append(Component.text("!", NamedTextColor.GREEN))
+        );
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
-
         if (args.length == 1) {
             String partialName = args[0].toLowerCase();
-            LibMain doughminationAPI = LibMain.getInstance();
-
-            // Suggest banned players
-            for (BanData banData : doughminationAPI.getAllBans().values()) {
+            for (BanData banData : LibMain.getInstance().getAllBans().values()) {
                 if (banData.getPlayerName().toLowerCase().startsWith(partialName)) {
                     completions.add(banData.getPlayerName());
                 }
             }
         }
-
         return completions;
     }
 }
