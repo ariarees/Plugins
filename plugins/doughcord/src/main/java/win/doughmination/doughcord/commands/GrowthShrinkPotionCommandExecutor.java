@@ -50,15 +50,14 @@ public class GrowthShrinkPotionCommandExecutor implements CommandExecutor, TabCo
             lore.add(Component.text("Drink to grow larger!", NamedTextColor.GRAY));
             meta.lore(lore);
             meta.getPersistentDataContainer().set(potionTypeKey, PersistentDataType.STRING, "growth");
-        } else if (cmdName.equals("shrinkpotion")) {
+        }
+
+        if (cmdName.equals("shrinkpotion")) {
             meta.displayName(Component.text("Shrink Potion", NamedTextColor.AQUA));
             List<Component> lore = new ArrayList<>();
             lore.add(Component.text("Drink to grow smaller!", NamedTextColor.GRAY));
             meta.lore(lore);
             meta.getPersistentDataContainer().set(potionTypeKey, PersistentDataType.STRING, "shrink");
-        } else {
-            player.sendMessage(Component.text("Unknown potion command.", NamedTextColor.RED));
-            return true;
         }
 
         potion.setItemMeta(meta);

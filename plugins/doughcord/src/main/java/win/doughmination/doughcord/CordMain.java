@@ -20,39 +20,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import win.doughmination.api.LibMain;
-import win.doughmination.doughcord.commands.GrowthShrinkPotionCommandExecutor;
-import win.doughmination.doughcord.commands.RecipesCommandExecutor;
-import win.doughmination.doughcord.commands.chests.EChestCommandExecutor;
-import win.doughmination.doughcord.commands.chests.VChestCommandExecutor;
-import win.doughmination.doughcord.commands.chests.chestsCommandExecutor;
-import win.doughmination.doughcord.commands.moderation.BanCommandExecutor;
-import win.doughmination.doughcord.commands.moderation.BanlistCommandExecutor;
-import win.doughmination.doughcord.commands.moderation.DoughCommandExecutor;
-import win.doughmination.doughcord.commands.moderation.ReloadCommandExecutor;
-import win.doughmination.doughcord.commands.moderation.UnbanCommandExecutor;
-import win.doughmination.doughcord.commands.moderation.VersionCommandExecutor;
+import win.doughmination.doughcord.commands.chests.*;
+import win.doughmination.doughcord.commands.moderation.*;
 import win.doughmination.doughcord.commands.playtimeCommandExecutor;
-import win.doughmination.doughcord.commands.roleplay.barkCommandExecutor;
-import win.doughmination.doughcord.commands.roleplay.kissCommandExecutor;
-import win.doughmination.doughcord.commands.roleplay.meowCommandExecutor;
-import win.doughmination.doughcord.commands.travel.base.BaseCommandExecutor;
-import win.doughmination.doughcord.commands.travel.base.BaseDataManager;
-import win.doughmination.doughcord.commands.travel.base.BaseProtectionListener;
-import win.doughmination.doughcord.commands.travel.rtpCommandExecutor;
-import win.doughmination.doughcord.commands.travel.setspawnCommandExecutor;
-import win.doughmination.doughcord.commands.travel.spawnCommandExecutor;
-import win.doughmination.doughcord.commands.travel.tpaCommandExecutor;
-import win.doughmination.doughcord.commands.travel.tpacceptCommandExecutor;
-import win.doughmination.doughcord.commands.travel.tpdenyCommandExecutor;
-import win.doughmination.doughcord.commands.veinminerCommandExecutor;
-import win.doughmination.doughcord.data.PlayerDataManager;
-import win.doughmination.doughcord.listeners.potions.PotionRecipeManager;
-import win.doughmination.doughcord.listeners.potions.PotionUseListener;
-import win.doughmination.doughcord.listeners.spawneggs.RecipeManager;
-import win.doughmination.doughcord.listeners.spawneggs.SpawnEggRecipes;
-import win.doughmination.doughcord.listeners.travel.BaseFlightMain;
-import win.doughmination.doughcord.listeners.travel.TeleportRequestManager;
-import win.doughmination.doughcord.listeners.veinminer.blockVeinminerListener;
+import win.doughmination.doughcord.commands.roleplay.*;
+import win.doughmination.doughcord.commands.travel.base.*;
+import win.doughmination.doughcord.commands.travel.*;
+import win.doughmination.doughcord.commands.*;
+import win.doughmination.doughcord.data.*;
+import win.doughmination.doughcord.listeners.potions.*;
+import win.doughmination.doughcord.listeners.spawneggs.*;
+import win.doughmination.doughcord.listeners.travel.*;
+import win.doughmination.doughcord.listeners.veinminer.*;
 
 public class CordMain extends JavaPlugin {
 
@@ -159,6 +138,7 @@ public class CordMain extends JavaPlugin {
         UnbanCommandExecutor unbanExec = new UnbanCommandExecutor(this);
         reg("unban",       unbanExec);
         reg("banlist",     new BanlistCommandExecutor(this));
+        reg("spin", new spinCommandExecutor(this));
     }
 
     private <T extends CommandExecutor & TabCompleter> void reg(String cmd, T exec) {
