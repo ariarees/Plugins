@@ -3,7 +3,7 @@
  * Licensed under the ESAL-1.3 Licence
  */
 
-package win.doughmination.doughcord.listeners.flight;
+package win.doughmination.doughcord.listeners.travel;
 
 import win.doughmination.doughcord.CordMain;
 import org.bukkit.ChatColor;

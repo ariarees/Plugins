@@ -15,6 +15,8 @@ public class PluralMain extends JavaPlugin {
     private static PluralMain instance;
     private static CloudApiClient apiClient;
 
+    private PlayerConnectionListener connectionListener;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -33,15 +35,24 @@ public class PluralMain extends JavaPlugin {
         getCommand("plural").setExecutor(new PluralCommand());
         getCommand("plural").setTabCompleter(new PluralCommandTabCompleter());
 
+        connectionListener = new PlayerConnectionListener();
         getServer().getPluginManager().registerEvents(new ChatProxyListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerConnectionListener(), this);
+        getServer().getPluginManager().registerEvents(connectionListener, this);
 
         getLogger().info("[Plural] " + MOD_NAME + " loaded!");
     }
 
     @Override
     public void onDisable() {
+        if (connectionListener != null) {
+            connectionListener.shutdown();
+        }
         systemCache.clear();
+        if (apiClient != null) {
+            apiClient.shutdown();
+        }
+        apiClient = null;
+        instance = null;
     }
 
     public static PluralMain getInstance() { return instance; }

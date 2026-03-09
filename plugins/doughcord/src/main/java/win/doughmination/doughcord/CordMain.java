@@ -5,6 +5,8 @@
 
 package win.doughmination.doughcord;
 
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import win.doughmination.api.LibMain;
 import win.doughmination.doughcord.commands.*;
 import win.doughmination.doughcord.commands.chests.*;
@@ -12,7 +14,7 @@ import win.doughmination.doughcord.commands.moderation.*;
 import win.doughmination.doughcord.commands.roleplay.*;
 import win.doughmination.doughcord.commands.travel.*;
 import win.doughmination.doughcord.data.*;
-import win.doughmination.doughcord.listeners.flight.*;
+import win.doughmination.doughcord.listeners.travel.*;
 import win.doughmination.doughcord.listeners.veinminer.*;
 import win.doughmination.doughcord.listeners.spawneggs.*;
 import win.doughmination.doughcord.listeners.potions.*;
@@ -32,24 +34,23 @@ import org.bstats.bukkit.Metrics;
 
 public class CordMain extends JavaPlugin {
 
-    // In-memory player data
+    private Metrics metrics;
     private final Map<UUID, Long>     playtimeMap      = new HashMap<>();
     private final Map<UUID, Long>     loginTimestamps  = new HashMap<>();
     private final Map<UUID, Location> bases            = new HashMap<>();
 
-    // Data layer — single source of truth for all JSON persistence
-    private PlayerDataManager playerDataManager;
-
-    // Executor references kept for shutdown saves and cross-command access
-    private VChestCommandExecutor   vChestExecutor;
-    private veinminerCommandExecutor veinMinerExecutor;
-    private BaseFlightMain          baseFlightMain;
+    private PlayerDataManager          playerDataManager;
+    private VChestCommandExecutor      vChestExecutor;
+    private veinminerCommandExecutor   veinMinerExecutor;
+    private BaseFlightMain             baseFlightMain;
+    private TeleportRequestManager     teleportRequestManager;
+    private setbaseCommandExecutor     setbaseExecutor;
 
     @Override
     public void onEnable() {
 
-        int pluginId = 29925; // Replace with your actual plugin id
-        Metrics metrics = new Metrics(this, pluginId);
+        int pluginId = 29925;
+        metrics = new Metrics(this, pluginId);
 
         getLogger().info(ChatColor.AQUA + "Doughcord is starting up...");
 
@@ -61,32 +62,40 @@ public class CordMain extends JavaPlugin {
 
         saveDefaultConfig();
 
-        // Boot the data manager first — everything else depends on it
         playerDataManager = new PlayerDataManager(this);
 
-        // Load persisted data into memory
         loadAllBases();
         loadAllPlaytime();
 
-        // Build retained executors
         veinMinerExecutor = new veinminerCommandExecutor(this);
         vChestExecutor    = new VChestCommandExecutor(this);
 
-        registerCommands();
+        // Boot the teleport request manager before registering commands
+        teleportRequestManager = new TeleportRequestManager(this);
+        teleportRequestManager.onEnable();
 
-        RecipeManager.registerRecipes(this);
-        PotionRecipeManager.registerRecipes(this);
+        registerCommands();
 
         baseFlightMain = new BaseFlightMain(this);
         baseFlightMain.onEnable();
 
         getServer().getPluginManager().registerEvents(new blockVeinminerListener(this, veinMinerExecutor), this);
         getServer().getPluginManager().registerEvents(new PotionUseListener(this), this);
+
+        SpawnEggRecipes.resetSymbolMap();
+        for (SpawnEggRecipes recipe : SpawnEggRecipes.values()) {
+            Bukkit.removeRecipe(new NamespacedKey(this, recipe.getKey()));
+        }
+        RecipeManager.registerRecipes(this);
+        PotionRecipeManager.registerRecipes(this);
     }
 
     @Override
     public void onDisable() {
         getLogger().info(ChatColor.AQUA + "Doughcord is shutting down...");
+        if (baseFlightMain != null) baseFlightMain.onDisable();
+        if (teleportRequestManager != null) teleportRequestManager.onDisable();
+        if (setbaseExecutor != null) setbaseExecutor.shutdown();
         saveAllBases();
         saveAllPlaytime();
         vChestExecutor.saveAll();
@@ -97,14 +106,16 @@ public class CordMain extends JavaPlugin {
     // -----------------------------------------------------------------------
 
     private void registerCommands() {
-        reg("setspawn",    new setSpawnCommandExecutor(this));
+        reg("setspawn",    new setspawnCommandExecutor(this));
         reg("spawn",       new spawnCommandExecutor(this));
-        reg("tpask",       new tpAskCommandExecutor(this));
-        reg("tpaccept",    new tpAcceptCommandExecutor(this));
-        reg("tpdeny",      new tpDenyCommandExecutor(this));
-        reg("setbase",     new setBaseCommandExecutor(this));
+        reg("tpa",         new tpaCommandExecutor(this));
+        reg("tpaccept",    new tpacceptCommandExecutor(this));
+        reg("tpdeny",      new tpdenyCommandExecutor(this));
+        reg("rtp",         new rtpCommandExecutor(this));
+        setbaseExecutor = new setbaseCommandExecutor(this);
+        reg("setbase",     setbaseExecutor);
         reg("base",        new baseCommandExecutor(this));
-        reg("visitbase",   new visitBaseCommandExecutor(this));
+        reg("visitbase",   new visitbaseCommandExecutor(this));
         reg("meow",        new meowCommandExecutor(this));
         reg("bark",        new barkCommandExecutor(this));
         reg("kiss",        new kissCommandExecutor(this));
@@ -114,7 +125,7 @@ public class CordMain extends JavaPlugin {
         reg("vchest",      vChestExecutor);
         reg("chest",       new chestsCommandExecutor(this));
         reg("recipes",     new RecipesCommandExecutor(this));
-        GrowthShrinkPotionCommand potionExec = new GrowthShrinkPotionCommand(this);
+        GrowthShrinkPotionCommandExecutor potionExec = new GrowthShrinkPotionCommandExecutor(this);
         reg("growthpotion", potionExec);
         reg("shrinkpotion", potionExec);
         reg("dough",        new DoughCommandExecutor(this));
@@ -133,14 +144,15 @@ public class CordMain extends JavaPlugin {
     }
 
     // -----------------------------------------------------------------------
-    // Bases — backed by PlayerDataManager
+    // Bases
     // -----------------------------------------------------------------------
 
     private void loadAllBases() {
-        // Scan every existing settings file and pre-load bases into memory
         java.io.File settingsDir = new java.io.File(getDataFolder(), "data/settings");
         if (!settingsDir.exists()) return;
-        for (java.io.File f : settingsDir.listFiles()) {
+        java.io.File[] baseFiles = settingsDir.listFiles();
+        if (baseFiles == null) return;
+        for (java.io.File f : baseFiles) {
             String name = f.getName();
             if (!name.endsWith(".json")) continue;
             try {
@@ -156,13 +168,15 @@ public class CordMain extends JavaPlugin {
     }
 
     // -----------------------------------------------------------------------
-    // Playtime — backed by PlayerDataManager
+    // Playtime
     // -----------------------------------------------------------------------
 
     private void loadAllPlaytime() {
         java.io.File settingsDir = new java.io.File(getDataFolder(), "data/settings");
         if (!settingsDir.exists()) return;
-        for (java.io.File f : settingsDir.listFiles()) {
+        java.io.File[] playtimeFiles = settingsDir.listFiles();
+        if (playtimeFiles == null) return;
+        for (java.io.File f : playtimeFiles) {
             String name = f.getName();
             if (!name.endsWith(".json")) continue;
             try {
@@ -174,7 +188,6 @@ public class CordMain extends JavaPlugin {
     }
 
     private void saveAllPlaytime() {
-        // Flush active sessions into the map before saving
         long now = System.currentTimeMillis();
         loginTimestamps.forEach((uuid, start) -> {
             playtimeMap.merge(uuid, now - start, Long::sum);
@@ -187,14 +200,15 @@ public class CordMain extends JavaPlugin {
     // Public API
     // -----------------------------------------------------------------------
 
-    public PlayerDataManager    getPlayerDataManager()  { return playerDataManager; }
-    public Map<UUID, Long>      getPlaytimeMap()        { return playtimeMap; }
-    public Map<UUID, Long>      getLoginTimestamps()    { return loginTimestamps; }
-    public Map<UUID, Location>  getBases()              { return bases; }
-    public Location             getBaseLocation(UUID u) { return bases.get(u); }
-    public boolean              hasBase(UUID u)         { return bases.containsKey(u); }
-    public veinminerCommandExecutor getVeinMinerExecutor() { return veinMinerExecutor; }
-    public BaseFlightMain       getBaseFlightMain()     { return baseFlightMain; }
+    public PlayerDataManager        getPlayerDataManager()       { return playerDataManager; }
+    public TeleportRequestManager   getTeleportRequestManager()  { return teleportRequestManager; }
+    public Map<UUID, Long>          getPlaytimeMap()             { return playtimeMap; }
+    public Map<UUID, Long>          getLoginTimestamps()         { return loginTimestamps; }
+    public Map<UUID, Location>      getBases()                   { return bases; }
+    public Location                 getBaseLocation(UUID u)      { return bases.get(u); }
+    public boolean                  hasBase(UUID u)              { return bases.containsKey(u); }
+    public veinminerCommandExecutor getVeinMinerExecutor()       { return veinMinerExecutor; }
+    public BaseFlightMain           getBaseFlightMain()          { return baseFlightMain; }
 
     public boolean isPlayerJailed(Player player) {
         LibMain api = LibMain.getInstance();

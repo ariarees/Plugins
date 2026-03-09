@@ -2,7 +2,7 @@
 # Licensed under the ESAL-1.3 License
 
 name: Doughcord
-version: 5.0.0
+version: 5.4.0-HOTFIX
 main: win.doughmination.doughcord.CordMain
 api-version: 1.21.11
 depend: [DoughAPI]
@@ -43,10 +43,10 @@ commands:
     usage: /doughreload
     permission: dough.reload
     permission-message: §cYou do not have permission to reload this plugin!
-  tpask:
+  tpa:
     description: Ask to tp to another player
-    usage: /tpask <player>
-    permission: dough.tpask
+    usage: /tp <player>
+    permission: dough.tpa
     permission-message: §cYou don't have permission to use this command!
   tpaccept:
     description: Accept a tp request
@@ -119,10 +119,10 @@ commands:
     permission: dough.vchest
     permission-message: §cYou do not have permission to use this command!
   chest:
-    description: Inspect a player's ender chest or VIP chest (moderation)
-    usage: /chest <echest|vchest> <player>
-    permission: dough.chest
-    permission-message: §cYou do not have permission to inspect player chests!
+    description: Inspect a player's ender chest, VIP chest, or inventory (moderation)
+    usage: /chest <echest|vchest|inv> <player> [take <slot>]
+    permission: dough.chest.inspect
+    permission-message: §cYou do not have permission to inspect player inventories!
   growthpotion:
     description: Gives you a growth potion
     usage: /growthpotion
@@ -131,6 +131,10 @@ commands:
     description: Gives you a shrink potion
     usage: /shrinkpotion
     permission: dough.shrinkpotion
+  rtp:
+    description: Teleport to a random location
+    usage: /rtp
+    permission: doughcord.rtp
 
 # Permissions
 permissions:
@@ -164,7 +168,7 @@ permissions:
   dough.playtime:
     description: Allows players to check their playtime.
     default: true
-  dough.tpask:
+  dough.tpa:
     description: Allows player to ask to tp to another player.
     default: true
   dough.tpaccept:
@@ -185,8 +189,11 @@ permissions:
   dough.vchest:
     description: Allows VIP players to open a separate larger double chest via /vchest.
     default: op
-  dough.chest:
-    description: Allows staff to inspect any player's echest or vchest via /chest.
+  dough.chest.inspect:
+    description: Allows staff to inspect any player's echest, vchest, or inventory via /chest.
+    default: op
+  dough.chest.take:
+    description: Allows staff to remove items from a player's echest, vchest, or inventory via /chest ... take <slot>.
     default: op
   dough.growthpotion:
     description: Gives a growth potion
@@ -196,4 +203,7 @@ permissions:
     default: op
   dough.recipes:
     description: Allows players to view spawn egg recipes URL
+    default: true
+  doughcord.rtp:
+    description: Allows use of /rtp
     default: true

@@ -448,8 +448,12 @@ public enum SpawnEggRecipes {
             {Material.STRING, Material.STRING, Material.STRING}
     });
 
+    // -----------------------
+    // Static map & symbol logic
+    // -----------------------
     private static final Map<Material, Character> symbolMap = new HashMap<>();
     private static char nextSymbol = 'A';
+
     private final String key;
     private final Material resultMaterial;
     private final Material[][] materials;
@@ -480,7 +484,7 @@ public enum SpawnEggRecipes {
                 if (mat == null) {
                     rowShape.append(" "); // Empty slot
                 } else {
-                    rowShape.append(getSymbolForMaterial(mat)); // Use the assigned symbol
+                    rowShape.append(getSymbolForMaterial(mat));
                 }
             }
             shape[row] = rowShape.toString();
@@ -488,13 +492,20 @@ public enum SpawnEggRecipes {
         return shape;
     }
 
-    // Helper method to assign unique symbols to materials
     private char getSymbolForMaterial(Material material) {
-        // Predefine symbols for unique materials
+        // Assign a symbol only if not already present
         if (!symbolMap.containsKey(material)) {
             symbolMap.put(material, nextSymbol++);
         }
         return symbolMap.get(material);
     }
 
+    /**
+     * Resets the symbol map and symbol counter.
+     * Call this on plugin reload to prevent memory leaks and duplicates.
+     */
+    public static void resetSymbolMap() {
+        symbolMap.clear();
+        nextSymbol = 'A';
+    }
 }

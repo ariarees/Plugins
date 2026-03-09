@@ -14,6 +14,7 @@ public class EventData {
     public UUID muscleToneHolder;
     public UUID wingHolder;
     public UUID packageHolder;
-    public Map<UUID, Double> dragonDamage;
+    // String keys used for Gson compatibility - converted back to UUID on load
+    public Map<String, Double> dragonDamage;
     public boolean firstDragonKilled;
 }

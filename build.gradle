@@ -3,12 +3,11 @@ plugins {
     id 'com.gradleup.shadow' version '9.3.1' apply false
 }
 
-// Common configuration for all subprojects
 subprojects {
     apply plugin: 'java'
     apply plugin: 'com.gradleup.shadow'
 
-    group = 'win.dougmination'
+    group = 'win.doughmination'
 
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(21))
@@ -33,7 +32,8 @@ subprojects {
     dependencies {
         compileOnly 'io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT'
         implementation 'org.bstats:bstats-bukkit:3.2.1'
-        implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+        implementation 'com.google.code.gson:gson:2.13.2'
+        implementation 'org.postgresql:postgresql:42.7.3'
     }
 
     compileJava {
@@ -42,15 +42,19 @@ subprojects {
 
     shadowJar {
         archiveClassifier.set('')
-        relocate 'org.bstats', 'win.dougmination.libs.bstats'
-        relocate 'org.json.simple', 'win.dougmination.libs.json'
-        relocate 'net.dv8tion.jda', 'win.dougmination.libs.jda'
-        relocate 'okhttp3', 'win.dougmination.libs.okhttp3'
-        relocate 'okio', 'win.dougmination.libs.okio'
-        relocate 'com.fasterxml.jackson', 'win.dougmination.libs.jackson'
-        relocate 'org.slf4j', 'win.dougmination.libs.slf4j'
-        relocate 'kotlin', 'win.dougmination.libs.kotlin'
-        relocate 'org.jetbrains', 'win.dougmination.libs.jetbrains'
+        relocate 'org.bstats', 'win.doughmination.libs.bstats'
+        relocate 'com.google.gson', 'win.doughmination.libs.gson'
+        relocate 'net.dv8tion.jda', 'win.doughmination.libs.jda'
+        relocate 'okhttp3', 'win.doughmination.libs.okhttp3'
+        relocate 'okio', 'win.doughmination.libs.okio'
+        relocate 'com.fasterxml.jackson', 'win.doughmination.libs.jackson'
+        relocate 'org.slf4j', 'win.doughmination.libs.slf4j'
+        relocate 'kotlin', 'win.doughmination.libs.kotlin'
+        relocate 'org.jetbrains', 'win.doughmination.libs.jetbrains'
+        relocate 'org.postgresql', 'win.doughmination.libs.postgresql'
+        relocate 'com.zaxxer', 'win.doughmination.libs.zaxxer'
+        relocate 'waffle', 'win.doughmination.libs.waffle'
+        relocate 'com.ongres', 'win.doughmination.libs.ongres'
 
         mergeServiceFiles()
 
@@ -68,21 +72,22 @@ subprojects {
         dependsOn shadowJar
     }
 
-    // Copy all built jars to a central output directory
     tasks.register('copyJar', Copy) {
         dependsOn shadowJar
         from shadowJar.archiveFile
-        into "${rootProject.buildDir}/libs"
+        into rootProject.layout.buildDirectory.dir('libs')
+        doFirst {
+            rootProject.layout.buildDirectory.dir('libs').get().asFile.mkdirs()
+        }
     }
 
     build.finalizedBy copyJar
 }
 
-// Task to build all plugins in correct order
 tasks.register('buildAll') {
-    dependsOn subprojects.collect { it.tasks.named('build') }
+    dependsOn subprojects.collect { it.tasks.named('copyJar') }
 
     doLast {
-        println "All plugins built! JARs available in: ${buildDir}/libs"
+        println "All plugins built! JARs available in: ${rootProject.layout.buildDirectory.get()}/libs"
     }
 }

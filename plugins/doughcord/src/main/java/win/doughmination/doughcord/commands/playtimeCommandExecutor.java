@@ -5,15 +5,19 @@
 
 package win.doughmination.doughcord.commands;
 
+
+import win.doughmination.doughcord.CordMain;
+
+import org.bukkit.command.TabCompleter;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import win.doughmination.doughcord.CordMain;
+
 import java.util.UUID;
 
-public class playtimeCommandExecutor implements CommandExecutor, org.bukkit.command.TabCompleter {
+public class playtimeCommandExecutor implements CommandExecutor, TabCompleter {
     private final CordMain plugin;
 
     public playtimeCommandExecutor(CordMain plugin) {

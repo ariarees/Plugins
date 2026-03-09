@@ -7,14 +7,17 @@ package win.doughmination.doughcord.commands;
 
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.command.TabCompleter;
+
 import win.doughmination.doughcord.CordMain;
 
-public class RecipesCommandExecutor implements CommandExecutor, org.bukkit.command.TabCompleter {
+public class RecipesCommandExecutor implements CommandExecutor, TabCompleter {
 
     private static final String RECIPES_URL = "https://modding.doughmination.co.uk/dougminationcord-recipes";
     private final CordMain plugin;
@@ -44,7 +47,7 @@ public class RecipesCommandExecutor implements CommandExecutor, org.bukkit.comma
     }
 
     @Override
-    public java.util.List<String> onTabComplete(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
+    public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return java.util.Collections.emptyList();
     }
 }

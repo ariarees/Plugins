@@ -115,9 +115,21 @@ public class CloudApiClient {
         });
     }
 
+    /** Shut down the internal HttpClient thread pool. Call from onDisable(). */
+    public void shutdown() {
+        // HttpClient.close() available in Java 21+; on older runtimes the client
+        // will be GC'd once the plugin classloader releases it.
+        try {
+            if (http instanceof AutoCloseable ac) {
+                ac.close();
+            }
+        } catch (Exception ignored) {}
+    }
+
     private void runAsync(Runnable r) {
-        PluralMain.getInstance().getServer().getScheduler()
-                .runTaskAsynchronously(PluralMain.getInstance(), r);
+        PluralMain plugin = PluralMain.getInstance();
+        if (plugin == null || !plugin.isEnabled()) return;
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, r);
     }
 
     private void log(String msg) {

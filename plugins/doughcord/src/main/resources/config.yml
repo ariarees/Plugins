@@ -5,7 +5,7 @@
 # Plugin Config - DO NOT CHANGE! THIS WILL BREAK THE PLUGIN!
 # =======================
 plugin-info:
-  version: 5.0.0 # Your plugin version - Use to report issues
+  version: 5.4.0-HOTFIX # Your plugin version - Use to report issues
   authors:
     - "Doughmination"
   official-repo: "https://modding.doughmination.win"
@@ -67,7 +67,7 @@ playtime-tracking:
 # ========================
 # Kitty Command Messages
 # ========================
-kitty-command:
+meow-command:
   messages: # Customize kitty command responses
     - "mrrp!"
     - "bwaa!"

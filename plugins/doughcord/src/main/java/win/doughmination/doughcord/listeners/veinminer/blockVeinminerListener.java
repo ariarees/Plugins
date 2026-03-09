@@ -61,6 +61,6 @@ public class blockVeinminerListener implements Listener {
     }
 
     private boolean isLog(Material material) {
-        return material.name().endsWith("_LOG");
+        return material.name().endsWith("_LOG") || material.name().endsWith("_STEM");
     }
 }

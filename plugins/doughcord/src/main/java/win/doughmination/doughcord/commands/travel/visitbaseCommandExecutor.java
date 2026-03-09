@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class visitBaseCommandExecutor implements CommandExecutor, TabCompleter {
+public class visitbaseCommandExecutor implements CommandExecutor, TabCompleter {
     private final CordMain plugin;
 
-    public visitBaseCommandExecutor(CordMain plugin) {
+    public visitbaseCommandExecutor(CordMain plugin) {
         this.plugin = plugin;
     }
 

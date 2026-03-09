@@ -5,7 +5,6 @@
 
 package win.doughmination.doughcord.commands.travel;
 
-import win.doughmination.doughcord.CordMain;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -14,9 +13,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.command.TabCompleter;
+
+import win.doughmination.doughcord.CordMain;
 import win.doughmination.api.LibMain;
 
-public class spawnCommandExecutor implements CommandExecutor, org.bukkit.command.TabCompleter {
+public class spawnCommandExecutor implements CommandExecutor, TabCompleter {
 
     private final CordMain plugin;
 

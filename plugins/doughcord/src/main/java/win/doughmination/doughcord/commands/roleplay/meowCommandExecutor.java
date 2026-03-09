@@ -31,16 +31,16 @@ public class meowCommandExecutor implements CommandExecutor, org.bukkit.command.
             return true;
         }
 
-        // Fetch kitty messages from the config file
-        List<String> kittyMessages = plugin.getConfig().getStringList("kitty-command.messages");
+        // Fetch meow messages from the config file
+        List<String> meowMessages = plugin.getConfig().getStringList("meow-command.messages");
 
-        if (kittyMessages.isEmpty()) {
+        if (meowMessages.isEmpty()) {
             player.sendMessage(ChatColor.RED + "No kitty messages are set in the config!");
             return true;
         }
 
         // Pick a random message
-        String randomMessage = kittyMessages.get(random.nextInt(kittyMessages.size()));
+        String randomMessage = meowMessages.get(random.nextInt(meowMessages.size()));
 
         // Construct the full formatted message
         String formattedMessage = ChatColor.LIGHT_PURPLE + player.getName() + " says " + randomMessage;

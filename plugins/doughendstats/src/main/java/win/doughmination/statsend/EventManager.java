@@ -91,8 +91,9 @@ public class EventManager {
 
     public void addDragonDamage(UUID playerId, double damage) {
         if (eventActive && !firstDragonKilled) {
+            // Only accumulate in memory - do NOT save on every hit as dragon fights
+            // fire dozens of damage events per second, causing excessive I/O
             dragonDamage.merge(playerId, damage, Double::sum);
-            saveData();
         }
     }
 
@@ -144,12 +145,15 @@ public class EventManager {
             data.muscleToneHolder = muscleToneHolder;
             data.wingHolder = wingHolder;
             data.packageHolder = packageHolder;
-            data.dragonDamage = dragonDamage;
+            // Store as String keys - Gson cannot deserialize UUID map keys natively
+            Map<String, Double> damageByString = new HashMap<>();
+            dragonDamage.forEach((k, v) -> damageByString.put(k.toString(), v));
+            data.dragonDamage = damageByString;
             data.firstDragonKilled = firstDragonKilled;
 
-            FileWriter writer = new FileWriter(dataFile);
-            gson.toJson(data, writer);
-            writer.close();
+            try (FileWriter writer = new FileWriter(dataFile)) {
+                gson.toJson(data, writer);
+            }
         } catch (IOException e) {
             plugin.getLogger().severe("Could not save event data: " + e.getMessage());
         }
@@ -160,10 +164,8 @@ public class EventManager {
             return;
         }
 
-        try {
-            FileReader reader = new FileReader(dataFile);
+        try (FileReader reader = new FileReader(dataFile)) {
             EventData data = gson.fromJson(reader, EventData.class);
-            reader.close();
 
             if (data != null) {
                 eventActive = data.eventActive;
@@ -175,7 +177,11 @@ public class EventManager {
                 muscleToneHolder = data.muscleToneHolder;
                 wingHolder = data.wingHolder;
                 packageHolder = data.packageHolder;
-                dragonDamage = data.dragonDamage != null ? data.dragonDamage : new HashMap<>();
+                // Deserialize String-keyed map back to UUID-keyed map
+                dragonDamage = new HashMap<>();
+                if (data.dragonDamage != null) {
+                    data.dragonDamage.forEach((k, v) -> dragonDamage.put(UUID.fromString(k.toString()), v));
+                }
                 firstDragonKilled = data.firstDragonKilled;
             }
         } catch (IOException e) {

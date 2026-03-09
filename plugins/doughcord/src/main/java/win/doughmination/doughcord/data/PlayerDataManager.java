@@ -5,18 +5,14 @@
 
 package win.doughmination.doughcord.data;
 
+import com.google.gson.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.UUID;
 
 /**
@@ -35,6 +31,7 @@ public class PlayerDataManager {
 
     private final File settingsDir;
     private final JavaPlugin plugin;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public PlayerDataManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -47,24 +44,21 @@ public class PlayerDataManager {
     // -----------------------------------------------------------------------
 
     /** Loads the full JSON object for a player, or returns an empty object if none exists. */
-    @SuppressWarnings("unchecked")
-    public JSONObject load(UUID uuid) {
+    public JsonObject load(UUID uuid) {
         File file = fileFor(uuid);
-        if (!file.exists()) return new JSONObject();
-        try (FileReader reader = new FileReader(file)) {
-            Object parsed = new JSONParser().parse(reader);
-            return parsed instanceof JSONObject ? (JSONObject) parsed : new JSONObject();
-        } catch (IOException | ParseException e) {
+        if (!file.exists()) return new JsonObject();
+        try (Reader reader = new FileReader(file)) {
+            JsonElement parsed = gson.fromJson(reader, JsonElement.class);
+            return (parsed != null && parsed.isJsonObject()) ? parsed.getAsJsonObject() : new JsonObject();
+        } catch (IOException e) {
             plugin.getLogger().warning("Failed to load settings for " + uuid + ": " + e.getMessage());
-            return new JSONObject();
+            return new JsonObject();
         }
     }
 
     public long loadPlaytime(UUID uuid) {
-        JSONObject data = load(uuid);
-        Object val = data.get("playtime");
-        if (val instanceof Number) return ((Number) val).longValue();
-        return 0L;
+        JsonObject data = load(uuid);
+        return data.has("playtime") ? data.get("playtime").getAsLong() : 0L;
     }
 
     public boolean loadVeinminerOres(UUID uuid) {
@@ -76,31 +70,30 @@ public class PlayerDataManager {
     }
 
     public boolean loadFlightToggle(UUID uuid) {
-        JSONObject data = load(uuid);
-        Object val = data.get("flight");
-        if (val instanceof Boolean) return (Boolean) val;
-        return false;
+        JsonObject data = load(uuid);
+        return data.has("flight") && data.get("flight").getAsBoolean();
     }
 
     /** Returns null if no base has been saved yet. */
     public Location loadBase(UUID uuid) {
-        JSONObject data = load(uuid);
-        Object baseObj = data.get("base");
-        if (!(baseObj instanceof JSONObject)) return null;
-        JSONObject base = (JSONObject) baseObj;
+        JsonObject data = load(uuid);
+        if (!data.has("base") || !data.get("base").isJsonObject()) return null;
+        JsonObject base = data.getAsJsonObject("base");
         try {
-            String worldName = (String) base.get("world");
+            String worldName = base.get("world").getAsString();
             World world = Bukkit.getWorld(worldName);
             if (world == null) {
                 plugin.getLogger().warning("Unknown world '" + worldName + "' for base of " + uuid);
                 return null;
             }
-            double x     = ((Number) base.get("x")).doubleValue();
-            double y     = ((Number) base.get("y")).doubleValue();
-            double z     = ((Number) base.get("z")).doubleValue();
-            float  yaw   = ((Number) base.get("yaw")).floatValue();
-            float  pitch = ((Number) base.get("pitch")).floatValue();
-            return new Location(world, x, y, z, yaw, pitch);
+            return new Location(
+                    world,
+                    base.get("x").getAsDouble(),
+                    base.get("y").getAsDouble(),
+                    base.get("z").getAsDouble(),
+                    base.get("yaw").getAsFloat(),
+                    base.get("pitch").getAsFloat()
+            );
         } catch (Exception e) {
             plugin.getLogger().warning("Corrupt base data for " + uuid + ": " + e.getMessage());
             return null;
@@ -111,44 +104,40 @@ public class PlayerDataManager {
     // Save helpers — each saves only the field it owns, preserving the rest
     // -----------------------------------------------------------------------
 
-    @SuppressWarnings("unchecked")
     public void savePlaytime(UUID uuid, long playtimeMs) {
-        JSONObject data = load(uuid);
-        data.put("playtime", playtimeMs);
+        JsonObject data = load(uuid);
+        data.addProperty("playtime", playtimeMs);
         save(uuid, data);
     }
 
-    @SuppressWarnings("unchecked")
     public void saveVeinminer(UUID uuid, boolean ores, boolean trees) {
-        JSONObject data = load(uuid);
-        JSONObject vm = new JSONObject();
-        vm.put("ores", ores);
-        vm.put("trees", trees);
-        data.put("veinminer", vm);
+        JsonObject data = load(uuid);
+        JsonObject vm = new JsonObject();
+        vm.addProperty("ores", ores);
+        vm.addProperty("trees", trees);
+        data.add("veinminer", vm);
         save(uuid, data);
     }
 
-    @SuppressWarnings("unchecked")
     public void saveFlightToggle(UUID uuid, boolean enabled) {
-        JSONObject data = load(uuid);
-        data.put("flight", enabled);
+        JsonObject data = load(uuid);
+        data.addProperty("flight", enabled);
         save(uuid, data);
     }
 
-    @SuppressWarnings("unchecked")
     public void saveBase(UUID uuid, Location loc) {
-        JSONObject data = load(uuid);
+        JsonObject data = load(uuid);
         if (loc == null) {
             data.remove("base");
         } else {
-            JSONObject base = new JSONObject();
-            base.put("world", loc.getWorld().getName());
-            base.put("x",     loc.getX());
-            base.put("y",     loc.getY());
-            base.put("z",     loc.getZ());
-            base.put("yaw",   (double) loc.getYaw());
-            base.put("pitch", (double) loc.getPitch());
-            data.put("base", base);
+            JsonObject base = new JsonObject();
+            base.addProperty("world", loc.getWorld().getName());
+            base.addProperty("x",     loc.getX());
+            base.addProperty("y",     loc.getY());
+            base.addProperty("z",     loc.getZ());
+            base.addProperty("yaw",   (double) loc.getYaw());
+            base.addProperty("pitch", (double) loc.getPitch());
+            data.add("base", base);
         }
         save(uuid, data);
     }
@@ -158,19 +147,16 @@ public class PlayerDataManager {
     // -----------------------------------------------------------------------
 
     private boolean loadVeinminerFlag(UUID uuid, String key) {
-        JSONObject data = load(uuid);
-        Object vmObj = data.get("veinminer");
-        if (!(vmObj instanceof JSONObject)) return true; // default on
-        Object val = ((JSONObject) vmObj).get(key);
-        if (val instanceof Boolean) return (Boolean) val;
-        return true;
+        JsonObject data = load(uuid);
+        if (!data.has("veinminer") || !data.get("veinminer").isJsonObject()) return true; // default on
+        JsonObject vm = data.getAsJsonObject("veinminer");
+        return !vm.has(key) || vm.get(key).getAsBoolean();
     }
 
-    private void save(UUID uuid, JSONObject data) {
+    private void save(UUID uuid, JsonObject data) {
         File file = fileFor(uuid);
-        try (FileWriter writer = new FileWriter(file)) {
-            // Pretty-print manually for readability
-            writer.write(prettyPrint(data));
+        try (Writer writer = new FileWriter(file)) {
+            gson.toJson(data, writer);
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to save settings for " + uuid + ": " + e.getMessage());
         }
@@ -178,44 +164,5 @@ public class PlayerDataManager {
 
     private File fileFor(UUID uuid) {
         return new File(settingsDir, uuid.toString() + ".json");
-    }
-
-    /**
-     * Simple pretty-printer — keeps things readable without pulling in Gson/Jackson.
-     * Handles one level of nesting (which is all we need here).
-     */
-    @SuppressWarnings("unchecked")
-    private String prettyPrint(JSONObject obj) {
-        StringBuilder sb = new StringBuilder("{\n");
-        int i = 0;
-        for (Object key : obj.keySet()) {
-            Object val = obj.get(key);
-            sb.append("  \"").append(key).append("\": ");
-            if (val instanceof JSONObject) {
-                sb.append("{\n");
-                JSONObject inner = (JSONObject) val;
-                int j = 0;
-                for (Object ik : inner.keySet()) {
-                    Object iv = inner.get(ik);
-                    sb.append("    \"").append(ik).append("\": ").append(jsonValue(iv));
-                    if (++j < inner.size()) sb.append(",");
-                    sb.append("\n");
-                }
-                sb.append("  }");
-            } else {
-                sb.append(jsonValue(val));
-            }
-            if (++i < obj.size()) sb.append(",");
-            sb.append("\n");
-        }
-        sb.append("}");
-        return sb.toString();
-    }
-
-    private String jsonValue(Object v) {
-        if (v instanceof String)  return "\"" + v + "\"";
-        if (v instanceof Boolean) return v.toString();
-        if (v instanceof Number)  return v.toString();
-        return "null";
     }
 }

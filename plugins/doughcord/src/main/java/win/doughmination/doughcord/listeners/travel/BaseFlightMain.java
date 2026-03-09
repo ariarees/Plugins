@@ -3,7 +3,7 @@
  * Licensed under the ESAL-1.3 Licence
  */
 
-package win.doughmination.doughcord.listeners.flight;
+package win.doughmination.doughcord.listeners.travel;
 
 import win.doughmination.doughcord.CordMain;
 import org.bukkit.Bukkit;
@@ -16,6 +16,7 @@ public class BaseFlightMain {
     private final CordMain doughPlugin;
     private final Map<UUID, Boolean> flightToggles;
     private final Map<String, FlyZone> communalFlyZones;
+    private org.bukkit.scheduler.BukkitTask flightCheckTask;
 
     public BaseFlightMain(CordMain plugin) {
         this.doughPlugin = plugin;
@@ -34,7 +35,9 @@ public class BaseFlightMain {
         // Pre-load flight toggles for any players who already have settings files
         java.io.File settingsDir = new java.io.File(doughPlugin.getDataFolder(), "data/settings");
         if (settingsDir.exists()) {
-            for (java.io.File f : settingsDir.listFiles()) {
+            java.io.File[] settingsFiles = settingsDir.listFiles();
+            if (settingsFiles == null) return;
+            for (java.io.File f : settingsFiles) {
                 String name = f.getName();
                 if (!name.endsWith(".json")) continue;
                 try {
@@ -46,7 +49,14 @@ public class BaseFlightMain {
         }
 
         // Start flight zone checks
-        new FlightCheckTask(this, doughPlugin).runTaskTimer(doughPlugin, 20L, 20L);
+        flightCheckTask = new FlightCheckTask(this, doughPlugin).runTaskTimer(doughPlugin, 20L, 20L);
+    }
+
+    public void onDisable() {
+        if (flightCheckTask != null) {
+            flightCheckTask.cancel();
+            flightCheckTask = null;
+        }
     }
 
     public Map<UUID, Boolean> getFlightToggles() {

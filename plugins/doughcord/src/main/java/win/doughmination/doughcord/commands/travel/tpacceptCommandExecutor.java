@@ -5,22 +5,26 @@
 
 package win.doughmination.doughcord.commands.travel;
 
-import win.doughmination.doughcord.CordMain;
-import win.doughmination.doughcord.commands.travel.tpAskCommandExecutor.TeleportRequest;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+
+import win.doughmination.doughcord.CordMain;
+import win.doughmination.doughcord.listeners.travel.TeleportRequestManager;
 import win.doughmination.api.LibMain;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
-public class tpAcceptCommandExecutor implements CommandExecutor, org.bukkit.command.TabCompleter {
+public class tpacceptCommandExecutor implements CommandExecutor, TabCompleter {
 
     private final CordMain plugin;
 
-    public tpAcceptCommandExecutor(CordMain plugin) {
+    public tpacceptCommandExecutor(CordMain plugin) {
         this.plugin = plugin;
     }
 
@@ -36,25 +40,25 @@ public class tpAcceptCommandExecutor implements CommandExecutor, org.bukkit.comm
             return true;
         }
 
-        tpAskCommandExecutor tpAskExecutor = (tpAskCommandExecutor) plugin.getCommand("tpask").getExecutor();
-
+        TeleportRequestManager manager = plugin.getTeleportRequestManager();
         UUID targetUUID = target.getUniqueId();
-        if (!tpAskExecutor.hasRequest(targetUUID)) {
+
+        if (!manager.hasRequest(targetUUID)) {
             target.sendMessage(ChatColor.RED + "You have no pending teleport requests.");
             return true;
         }
 
-        TeleportRequest request = tpAskExecutor.getRequest(targetUUID);
-
+        TeleportRequestManager.TeleportRequest request = manager.getRequest(targetUUID);
         Player requester = plugin.getServer().getPlayer(request.getRequesterUUID());
+
         if (requester == null || !requester.isOnline()) {
             target.sendMessage(ChatColor.RED + "The requester is no longer online.");
-            tpAskExecutor.removeRequest(targetUUID);
+            manager.removeRequest(targetUUID);
             return true;
         }
 
         requester.teleport(target.getLocation());
-        tpAskExecutor.removeRequest(targetUUID);
+        manager.removeRequest(targetUUID);
 
         requester.sendMessage(ChatColor.GREEN + "Teleport request accepted by " + ChatColor.AQUA + target.getName() + ChatColor.GREEN + "!");
         target.sendMessage(ChatColor.GREEN + "You have accepted the teleport request from " + ChatColor.AQUA + requester.getName() + ChatColor.GREEN + ".");
@@ -62,7 +66,7 @@ public class tpAcceptCommandExecutor implements CommandExecutor, org.bukkit.comm
     }
 
     @Override
-    public java.util.List<String> onTabComplete(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
-        return java.util.Collections.emptyList();
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return Collections.emptyList();
     }
 }

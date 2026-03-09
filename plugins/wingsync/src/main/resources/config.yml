@@ -30,31 +30,26 @@ discord:
   # then right-click yourself and click "Copy User ID"
   admin_id: "YOUR_DISCORD_ADMIN_ID"
 
-  # Would you like users that get banned in game to be banned from your server
   # Set to false to disable Discord ban synchronization (default: true)
   sync_bans: true
 
 # ========================================
-# DATABASE CONFIGURATION
+# STORAGE CONFIGURATION
 # ========================================
-# By default, WingSync uses file-based storage (playerdata.json)
-# Enable MySQL below if you want database storage instead.
+# Controls where WingSync stores player link data.
+#
+# type options:
+#   json       - File-based storage (playerdata.json). No setup required. (default)
+#   mysql      - MySQL database. Default port: 3306
+#   postgresql - PostgreSQL database. Default port: 5432
+#
+# host, port, database, username, password are ignored when type is json.
+# ========================================
 
-mysql:
-  enabled: false
+storage:
+  type: json
   host: localhost
-  port: 3306
+  port: 1234
   database: minecraft
   username: root
   password: password123
-
-# ========================================
-# MESSAGES (Future use)
-# ========================================
-plugin:
-  messages:
-    enabled: "WingSync has been enabled!"
-    disabled: "WingSync has been disabled!"
-    whitelist_added: "Player {player} has been added to the whitelist by {user}."
-    whitelist_removed: "Player {player} has been removed from the whitelist by {user}."
-    no_permission: "You do not have permission to perform this action."

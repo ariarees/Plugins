@@ -5,22 +5,26 @@
 
 package win.doughmination.doughcord.commands.travel;
 
-import win.doughmination.doughcord.CordMain;
-import win.doughmination.doughcord.commands.travel.tpAskCommandExecutor.TeleportRequest;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+
+import win.doughmination.doughcord.CordMain;
+import win.doughmination.doughcord.listeners.travel.TeleportRequestManager;
 import win.doughmination.api.LibMain;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
-public class tpDenyCommandExecutor implements CommandExecutor, org.bukkit.command.TabCompleter {
+public class tpdenyCommandExecutor implements CommandExecutor, TabCompleter {
 
     private final CordMain plugin;
 
-    public tpDenyCommandExecutor(CordMain plugin) {
+    public tpdenyCommandExecutor(CordMain plugin) {
         this.plugin = plugin;
     }
 
@@ -36,15 +40,15 @@ public class tpDenyCommandExecutor implements CommandExecutor, org.bukkit.comman
             return true;
         }
 
-        tpAskCommandExecutor tpAskExecutor = (tpAskCommandExecutor) plugin.getCommand("tpask").getExecutor();
-
+        TeleportRequestManager manager = plugin.getTeleportRequestManager();
         UUID targetUUID = target.getUniqueId();
-        if (!tpAskExecutor.hasRequest(targetUUID)) {
+
+        if (!manager.hasRequest(targetUUID)) {
             target.sendMessage(ChatColor.RED + "You have no pending teleport requests to deny.");
             return true;
         }
 
-        TeleportRequest request = tpAskExecutor.getRequest(targetUUID);
+        TeleportRequestManager.TeleportRequest request = manager.getRequest(targetUUID);
         Player requester = plugin.getServer().getPlayer(request.getRequesterUUID());
 
         if (requester != null && requester.isOnline()) {
@@ -52,12 +56,12 @@ public class tpDenyCommandExecutor implements CommandExecutor, org.bukkit.comman
         }
 
         target.sendMessage(ChatColor.YELLOW + "You have denied the teleport request.");
-        tpAskExecutor.removeRequest(targetUUID);
+        manager.removeRequest(targetUUID);
         return true;
     }
 
     @Override
-    public java.util.List<String> onTabComplete(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
-        return java.util.Collections.emptyList();
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return Collections.emptyList();
     }
 }

@@ -5,17 +5,18 @@
 
 package win.doughmination.doughcord.data;
 
+import com.google.gson.*;
+
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.*;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -34,6 +35,7 @@ public class VChestDataManager {
 
     private final File vchestsDir;
     private final JavaPlugin plugin;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public VChestDataManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -50,22 +52,22 @@ public class VChestDataManager {
         File file = fileFor(uuid);
         if (!file.exists()) return;
 
-        JSONObject data;
-        try (FileReader reader = new FileReader(file)) {
-            Object parsed = new JSONParser().parse(reader);
-            if (!(parsed instanceof JSONObject)) return;
-            data = (JSONObject) parsed;
-        } catch (IOException | ParseException e) {
+        JsonObject data;
+        try (Reader reader = new FileReader(file)) {
+            JsonElement parsed = gson.fromJson(reader, JsonElement.class);
+            if (parsed == null || !parsed.isJsonObject()) return;
+            data = parsed.getAsJsonObject();
+        } catch (IOException e) {
             plugin.getLogger().warning("Failed to load vchest for " + uuid + ": " + e.getMessage());
             return;
         }
 
-        for (Object keyObj : data.keySet()) {
-            String key = (String) keyObj;
+        for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
+            String key = entry.getKey();
             if (!key.startsWith("slot_")) continue;
             try {
                 int slot = Integer.parseInt(key.substring(5));
-                String encoded = (String) data.get(key);
+                String encoded = entry.getValue().getAsString();
                 ItemStack item = decodeItem(encoded);
                 if (item != null && slot >= 0 && slot < inv.getSize()) {
                     inv.setItem(slot, item);
@@ -81,20 +83,19 @@ public class VChestDataManager {
     // -----------------------------------------------------------------------
 
     /** Saves every occupied slot from the inventory to the player's JSON file. */
-    @SuppressWarnings("unchecked")
     public void save(UUID uuid, Inventory inv) {
-        JSONObject data = new JSONObject();
+        JsonObject data = new JsonObject();
         ItemStack[] contents = inv.getContents();
         for (int i = 0; i < contents.length; i++) {
             if (contents[i] != null) {
                 String encoded = encodeItem(contents[i]);
-                if (encoded != null) data.put("slot_" + i, encoded);
+                if (encoded != null) data.addProperty("slot_" + i, encoded);
             }
         }
 
         File file = fileFor(uuid);
-        try (FileWriter writer = new FileWriter(file)) {
-            writer.write(prettyPrint(data));
+        try (Writer writer = new FileWriter(file)) {
+            gson.toJson(data, writer);
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to save vchest for " + uuid + ": " + e.getMessage());
         }
@@ -127,18 +128,5 @@ public class VChestDataManager {
             plugin.getLogger().warning("Could not decode ItemStack: " + e.getMessage());
             return null;
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private String prettyPrint(JSONObject obj) {
-        StringBuilder sb = new StringBuilder("{\n");
-        int i = 0;
-        for (Object key : obj.keySet()) {
-            sb.append("  \"").append(key).append("\": \"").append(obj.get(key)).append("\"");
-            if (++i < obj.size()) sb.append(",");
-            sb.append("\n");
-        }
-        sb.append("}");
-        return sb.toString();
     }
 }

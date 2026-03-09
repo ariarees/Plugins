@@ -6,7 +6,9 @@
 package win.doughmination.doughcord.commands;
 
 import win.doughmination.doughcord.CordMain;
-import net.md_5.bungee.api.ChatColor;
+
+import org.bukkit.ChatColor;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
@@ -20,12 +22,12 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GrowthShrinkPotionCommand implements CommandExecutor, org.bukkit.command.TabCompleter {
+public class GrowthShrinkPotionCommandExecutor implements CommandExecutor, TabCompleter {
 
     private final CordMain plugin;
     private final NamespacedKey potionTypeKey;
 
-    public GrowthShrinkPotionCommand(CordMain plugin) {
+    public GrowthShrinkPotionCommandExecutor(CordMain plugin) {
         this.plugin = plugin;
         // Create a new namespaced key for custom potion types
         potionTypeKey = new NamespacedKey(plugin, "potionType");
@@ -67,7 +69,7 @@ public class GrowthShrinkPotionCommand implements CommandExecutor, org.bukkit.co
 
 
     @Override
-    public java.util.List<String> onTabComplete(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
+    public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return java.util.Collections.emptyList();
     }
 }

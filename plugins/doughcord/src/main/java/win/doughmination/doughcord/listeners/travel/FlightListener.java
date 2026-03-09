@@ -3,7 +3,7 @@
  * Licensed under the ESAL-1.3 Licence
  */
 
-package win.doughmination.doughcord.listeners.flight;
+package win.doughmination.doughcord.listeners.travel;
 
 import win.doughmination.doughcord.CordMain;
 import org.bukkit.ChatColor;
@@ -28,6 +28,11 @@ public class FlightListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
+        // Skip head rotations — only process actual position changes
+        if (event.getFrom().getBlockX() == event.getTo().getBlockX()
+                && event.getFrom().getBlockY() == event.getTo().getBlockY()
+                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) return;
+
         Player player = event.getPlayer();
         UUID playerUUID = player.getUniqueId();
 

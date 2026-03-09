@@ -12,12 +12,14 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.command.TabCompleter;
+
 import win.doughmination.doughcord.CordMain;
 import win.doughmination.api.LibMain;
 
 import java.util.UUID;
 
-public class baseCommandExecutor implements CommandExecutor, org.bukkit.command.TabCompleter {
+public class baseCommandExecutor implements CommandExecutor, TabCompleter {
     private final CordMain plugin;
 
     public baseCommandExecutor(CordMain plugin) {
