@@ -13,49 +13,80 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import java.util.List;
 
 public class PotionRecipeManager {
 
     public static void registerRecipes(CordMain plugin) {
+
         // --- Growth Potion Recipe ---
-        // Create the custom Growth Potion item (sticky piston used to represent "stretch")
         ItemStack growthPotion = new ItemStack(Material.POTION);
         ItemMeta growthMeta = growthPotion.getItemMeta();
+
         if (growthMeta != null) {
-            growthMeta.setDisplayName("§eGrowth Potion");
-            List<String> lore = new ArrayList<>();
-            lore.add("Drink to grow larger!");
-            growthMeta.setLore(lore);
-            // Store custom data to identify the potion type
-            growthMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, "potionType"), PersistentDataType.STRING, "growth");
+
+            growthMeta.displayName(
+                    Component.text("Growth Potion", NamedTextColor.YELLOW)
+            );
+
+            growthMeta.lore(List.of(
+                    Component.text("Drink to grow larger!", NamedTextColor.GRAY)
+            ));
+
+            growthMeta.getPersistentDataContainer().set(
+                    new NamespacedKey(plugin, "potionType"),
+                    PersistentDataType.STRING,
+                    "growth"
+            );
+
             growthPotion.setItemMeta(growthMeta);
         }
 
-        // Create a shapeless recipe with any potion and a sticky piston
-        ShapelessRecipe growthRecipe = new ShapelessRecipe(new NamespacedKey(plugin, "growth_potion"), growthPotion);
-        growthRecipe.addIngredient(Material.POTION);          // Accepts any potion type
-        growthRecipe.addIngredient(Material.STICKY_PISTON);     // Sticky piston signifies "stretch"
+        ShapelessRecipe growthRecipe = new ShapelessRecipe(
+                new NamespacedKey(plugin, "growth_potion"),
+                growthPotion
+        );
+
+        growthRecipe.addIngredient(Material.POTION);
+        growthRecipe.addIngredient(Material.STICKY_PISTON);
+
         plugin.getServer().addRecipe(growthRecipe);
 
+
         // --- Shrink Potion Recipe ---
-        // Create the custom Shrink Potion item (piston represents compression)
         ItemStack shrinkPotion = new ItemStack(Material.POTION);
         ItemMeta shrinkMeta = shrinkPotion.getItemMeta();
+
         if (shrinkMeta != null) {
-            shrinkMeta.setDisplayName("§bShrink Potion");
-            List<String> lore = new ArrayList<>();
-            lore.add("Drink to shrink smaller!");
-            shrinkMeta.setLore(lore);
-            shrinkMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, "potionType"), PersistentDataType.STRING, "shrink");
+
+            shrinkMeta.displayName(
+                    Component.text("Shrink Potion", NamedTextColor.AQUA)
+            );
+
+            shrinkMeta.lore(List.of(
+                    Component.text("Drink to shrink smaller!", NamedTextColor.GRAY)
+            ));
+
+            shrinkMeta.getPersistentDataContainer().set(
+                    new NamespacedKey(plugin, "potionType"),
+                    PersistentDataType.STRING,
+                    "shrink"
+            );
+
             shrinkPotion.setItemMeta(shrinkMeta);
         }
 
-        // Create a shapeless recipe with any potion and a regular piston
-        ShapelessRecipe shrinkRecipe = new ShapelessRecipe(new NamespacedKey(plugin, "shrink_potion"), shrinkPotion);
+        ShapelessRecipe shrinkRecipe = new ShapelessRecipe(
+                new NamespacedKey(plugin, "shrink_potion"),
+                shrinkPotion
+        );
+
         shrinkRecipe.addIngredient(Material.POTION);
         shrinkRecipe.addIngredient(Material.PISTON);
+
         plugin.getServer().addRecipe(shrinkRecipe);
     }
 }

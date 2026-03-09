@@ -22,22 +22,28 @@ public class VersionCommandExecutor implements CommandExecutor, org.bukkit.comma
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        String version = plugin.getDescription().getVersion();
-        String authors = String.join(", ", plugin.getDescription().getAuthors());
-        String website = plugin.getDescription().getWebsite();
+
+        var meta = plugin.getPluginMeta();
+
+        String version = meta.getVersion();
+        String authors = String.join(", ", meta.getAuthors());
+        String website = meta.getWebsite();
 
         sender.sendMessage(Component.text("════ ", NamedTextColor.GOLD)
-            .append(Component.text("DoughminationCord Plugin Info", NamedTextColor.GREEN))
-            .append(Component.text(" ════", NamedTextColor.GOLD)));
+                .append(Component.text("DoughminationCord Plugin Info", NamedTextColor.GREEN))
+                .append(Component.text(" ════", NamedTextColor.GOLD)));
         sender.sendMessage(Component.text("Version: ", NamedTextColor.YELLOW)
-            .append(Component.text(version, NamedTextColor.WHITE)));
+                .append(Component.text(version, NamedTextColor.WHITE)));
         sender.sendMessage(Component.text("Authors: ", NamedTextColor.YELLOW)
-            .append(Component.text(authors, NamedTextColor.WHITE)));
+                .append(Component.text(authors, NamedTextColor.WHITE)));
+
         if (website != null && !website.isEmpty()) {
             sender.sendMessage(Component.text("Website: ", NamedTextColor.YELLOW)
-                .append(Component.text(website, NamedTextColor.WHITE)));
+                    .append(Component.text(website, NamedTextColor.WHITE)));
         }
+
         sender.sendMessage(Component.text("════════════════════════════════", NamedTextColor.GOLD));
+
         return true;
     }
 
