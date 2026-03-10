@@ -22,12 +22,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import win.doughmination.api.LibMain;
 import win.doughmination.doughcord.commands.chests.*;
 import win.doughmination.doughcord.commands.moderation.*;
-import win.doughmination.doughcord.commands.playtimeCommandExecutor;
+import win.doughmination.doughcord.commands.other.*;
 import win.doughmination.doughcord.commands.roleplay.*;
 import win.doughmination.doughcord.commands.travel.base.*;
 import win.doughmination.doughcord.commands.travel.*;
-import win.doughmination.doughcord.commands.*;
 import win.doughmination.doughcord.data.*;
+import win.doughmination.doughcord.listeners.*;
 import win.doughmination.doughcord.listeners.potions.*;
 import win.doughmination.doughcord.listeners.spawneggs.*;
 import win.doughmination.doughcord.listeners.travel.*;
@@ -47,6 +47,7 @@ public class CordMain extends JavaPlugin {
     private TeleportRequestManager   teleportRequestManager;
     private BaseCommandExecutor      baseCommandExecutor;
     private BaseDataManager          baseDataManager;
+    private BackLocationManager backLocationManager;
 
     @Override
     public void onEnable() {
@@ -64,6 +65,8 @@ public class CordMain extends JavaPlugin {
         saveDefaultConfig();
 
         playerDataManager = new PlayerDataManager(this);
+
+        backLocationManager = new BackLocationManager();
 
         baseDataManager = new BaseDataManager(this);
         baseDataManager.loadAll();
@@ -85,6 +88,7 @@ public class CordMain extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new blockVeinminerListener(this, veinMinerExecutor), this);
         getServer().getPluginManager().registerEvents(new PotionUseListener(this), this);
         getServer().getPluginManager().registerEvents(new BaseProtectionListener(this, baseDataManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerSessionListener(this), this);
 
         SpawnEggRecipes.resetSymbolMap();
         for (SpawnEggRecipes recipe : SpawnEggRecipes.values()) {
@@ -134,11 +138,16 @@ public class CordMain extends JavaPlugin {
         reg("version",      new VersionCommandExecutor(this));
         reg("doughreload",  new ReloadCommandExecutor(this));
         BanCommandExecutor banExec = new BanCommandExecutor(this);
-        reg("doughban",    banExec);
+        reg("doughban",     banExec);
         UnbanCommandExecutor unbanExec = new UnbanCommandExecutor(this);
-        reg("unban",       unbanExec);
-        reg("banlist",     new BanlistCommandExecutor(this));
+        reg("doughpardon",  unbanExec);
+        reg("doughbanlist", new BanlistCommandExecutor(this));
         reg("spin", new spinCommandExecutor(this));
+        reg("seen",  new SeenCommandExecutor(this));
+        reg("tps",   new TpsCommandExecutor(this));
+        reg("craft", new CraftCommandExecutor(this));
+        reg("back",  new BackCommandExecutor(this));
+        reg("beef",  new BeefCommandExecutor(this));
     }
 
     private <T extends CommandExecutor & TabCompleter> void reg(String cmd, T exec) {
@@ -191,18 +200,24 @@ public class CordMain extends JavaPlugin {
     }
 
     private void saveAllPlaytime() {
+        // Flush any players still online at shutdown (e.g. /stop with players connected).
+        // Normal logout saving is handled by PlayerSessionListener#onPlayerQuit.
         long now = System.currentTimeMillis();
-        loginTimestamps.forEach((uuid, start) -> {
-            playtimeMap.merge(uuid, now - start, Long::sum);
-            loginTimestamps.put(uuid, now);
-        });
-        playtimeMap.forEach((uuid, ms) -> playerDataManager.savePlaytime(uuid, ms));
+        for (Player p : getServer().getOnlinePlayers()) {
+            java.util.UUID uuid = p.getUniqueId();
+            long sessionStart = loginTimestamps.getOrDefault(uuid, now);
+            playtimeMap.merge(uuid, now - sessionStart, Long::sum);
+            playerDataManager.savePlaytime(uuid, playtimeMap.getOrDefault(uuid, 0L));
+            playerDataManager.saveLastSeen(uuid, now);
+            veinMinerExecutor.saveAndUnloadForPlayer(uuid);
+        }
     }
 
     // -------------------------------------------------------------------------
     // Public API
     // -------------------------------------------------------------------------
 
+    public BackLocationManager getBackLocationManager() { return backLocationManager; }
     public PlayerDataManager        getPlayerDataManager()       { return playerDataManager; }
     public BaseDataManager          getBaseDataManager()         { return baseDataManager; }
     public TeleportRequestManager   getTeleportRequestManager()  { return teleportRequestManager; }

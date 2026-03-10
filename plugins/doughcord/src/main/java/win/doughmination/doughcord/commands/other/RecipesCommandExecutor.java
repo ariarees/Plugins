@@ -3,7 +3,7 @@
  * Licensed under the ESAL-1.3 Licence
  */
 
-package win.doughmination.doughcord.commands;
+package win.doughmination.doughcord.commands.other;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;

@@ -40,6 +40,36 @@ public class PlayerDataManager {
     }
 
     // -----------------------------------------------------------------------
+    // First-join initialisation
+    // -----------------------------------------------------------------------
+
+    /**
+     * Called on player join. If no settings file exists yet, creates one with
+     * all default values written out explicitly so the file is human-readable
+     * from day one. If a file already exists, this is a no-op.
+     */
+    public void initPlayerFile(UUID uuid) {
+        File file = fileFor(uuid);
+        if (file.exists()) return;
+
+        JsonObject data = new JsonObject();
+
+        data.addProperty("playtime", 0L);
+        data.addProperty("lastSeen", 0L);
+        data.addProperty("flight", false);
+
+        JsonObject vm = new JsonObject();
+        vm.addProperty("ores", true);
+        vm.addProperty("trees", true);
+        data.add("veinminer", vm);
+
+        // "base" is intentionally omitted — it is written when the player runs /base set
+
+        save(uuid, data);
+        plugin.getLogger().info("Created settings file for " + uuid);
+    }
+
+    // -----------------------------------------------------------------------
     // Load
     // -----------------------------------------------------------------------
 
@@ -59,6 +89,12 @@ public class PlayerDataManager {
     public long loadPlaytime(UUID uuid) {
         JsonObject data = load(uuid);
         return data.has("playtime") ? data.get("playtime").getAsLong() : 0L;
+    }
+
+    /** Returns the epoch-millisecond timestamp of the player's last logout, or 0 if never recorded. */
+    public long loadLastSeen(UUID uuid) {
+        JsonObject data = load(uuid);
+        return data.has("lastSeen") ? data.get("lastSeen").getAsLong() : 0L;
     }
 
     public boolean loadVeinminerOres(UUID uuid) {
@@ -107,6 +143,13 @@ public class PlayerDataManager {
     public void savePlaytime(UUID uuid, long playtimeMs) {
         JsonObject data = load(uuid);
         data.addProperty("playtime", playtimeMs);
+        save(uuid, data);
+    }
+
+    /** Saves the epoch-millisecond timestamp of when the player last logged out. */
+    public void saveLastSeen(UUID uuid, long timestampMs) {
+        JsonObject data = load(uuid);
+        data.addProperty("lastSeen", timestampMs);
         save(uuid, data);
     }
 

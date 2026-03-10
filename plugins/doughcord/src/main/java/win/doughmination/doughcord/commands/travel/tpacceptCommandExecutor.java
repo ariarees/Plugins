@@ -57,6 +57,9 @@ public class tpacceptCommandExecutor implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        // Save requester's current position so they can /back after the teleport
+        plugin.getBackLocationManager().set(requester.getUniqueId(), requester.getLocation());
+
         requester.teleport(target.getLocation());
         manager.removeRequest(targetUUID);
 

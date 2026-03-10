@@ -40,13 +40,14 @@ public class BaseCommandExecutor implements CommandExecutor, TabCompleter {
     private final NameCommand    nameCommand;
     private final InfoCommand    infoCommand;
     private final VisitCommand   visitCommand;
+    private final FlyCommand     flyCommand;
 
     // "visit" omitted from base list — only shown/suggested to ops
     private static final List<String> SUBCOMMANDS = Arrays.asList(
-        "tp", "set", "trust", "untrust", "name", "info"
+        "tp", "set", "trust", "untrust", "name", "info", "fly"
     );
     private static final List<String> OP_SUBCOMMANDS = Arrays.asList(
-        "tp", "set", "trust", "untrust", "name", "info", "visit"
+        "tp", "set", "trust", "untrust", "name", "info", "fly", "visit"
     );
 
     public BaseCommandExecutor(CordMain plugin, BaseDataManager baseData) {
@@ -57,6 +58,7 @@ public class BaseCommandExecutor implements CommandExecutor, TabCompleter {
         this.nameCommand    = new NameCommand(plugin, baseData);
         this.infoCommand    = new InfoCommand(plugin, baseData);
         this.visitCommand   = new VisitCommand(plugin, baseData);
+        this.flyCommand     = new FlyCommand(plugin);
     }
 
     /** Call on plugin disable to clean up SetCommand's cooldown task. */
@@ -83,6 +85,7 @@ public class BaseCommandExecutor implements CommandExecutor, TabCompleter {
             case "name"    -> { return nameCommand.execute(player, args); }
             case "info"    -> { return infoCommand.execute(player); }
             case "visit"   -> { return visitCommand.execute(player, args); }
+            case "fly"     -> { return flyCommand.execute(player, args); }
             default        -> { sendHelp(player); return true; }
         }
     }
@@ -97,6 +100,7 @@ public class BaseCommandExecutor implements CommandExecutor, TabCompleter {
         player.sendMessage(help("/base trust <player>",    "Allow a player to interact at your base"));
         player.sendMessage(help("/base untrust <player>",  "Remove a player's base access"));
         player.sendMessage(help("/base info",              "View your base details and trusted players"));
+        player.sendMessage(help("/base fly <on|off>",      "Toggle flight within your base radius"));
         if (player.hasPermission("dough.visitbase")) {
             player.sendMessage(help("/base visit <player>", "§7[Op] Teleport to any player's base"));
         }
@@ -125,6 +129,11 @@ public class BaseCommandExecutor implements CommandExecutor, TabCompleter {
                 return sender.getServer().getOnlinePlayers().stream()
                     .map(Player::getName)
                     .filter(n -> n.toLowerCase().startsWith(partial))
+                    .collect(Collectors.toList());
+            }
+            if (sub.equals("fly")) {
+                return Arrays.asList("on", "off").stream()
+                    .filter(s -> s.startsWith(partial))
                     .collect(Collectors.toList());
             }
             if (sub.equals("visit") && sender.hasPermission("dough.visitbase")) {

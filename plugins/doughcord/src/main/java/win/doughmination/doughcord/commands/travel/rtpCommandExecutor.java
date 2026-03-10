@@ -94,6 +94,7 @@ public class rtpCommandExecutor implements CommandExecutor, TabCompleter {
                             player.sendMessage(Component.text("Could not find a safe location. Try again!", NamedTextColor.RED));
                             return;
                         }
+                        plugin.getBackLocationManager().set(uuid, player.getLocation());
                         player.teleport(loc);
                         cooldowns.put(uuid, System.currentTimeMillis());
                         player.sendMessage(

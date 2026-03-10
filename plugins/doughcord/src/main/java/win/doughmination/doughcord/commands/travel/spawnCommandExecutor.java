@@ -44,6 +44,7 @@ public class spawnCommandExecutor implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        plugin.getBackLocationManager().set(player.getUniqueId(), player.getLocation());
         player.teleport(spawnLocation);
         player.sendMessage(Component.text("You have been teleported to the server spawn!", NamedTextColor.GREEN));
         return true;

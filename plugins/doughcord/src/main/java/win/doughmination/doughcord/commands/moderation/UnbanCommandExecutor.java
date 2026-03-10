@@ -39,7 +39,7 @@ public class UnbanCommandExecutor implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 1) {
-            sender.sendMessage(Component.text("Usage: /unban <player>", NamedTextColor.RED));
+            sender.sendMessage(Component.text("Usage: /doughpardon <player>", NamedTextColor.RED));
             return true;
         }
 

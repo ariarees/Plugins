@@ -3,7 +3,7 @@
  * Licensed under the ESAL-1.3 Licence
  */
 
-package win.doughmination.doughcord.commands;
+package win.doughmination.doughcord.commands.other;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +51,6 @@ public class veinminerCommandExecutor implements CommandExecutor, TabCompleter {
         }
 
         UUID uuid = player.getUniqueId();
-        ensureLoaded(uuid);
 
         switch (args[0].toLowerCase()) {
             case "ores" -> {
@@ -84,21 +83,26 @@ public class veinminerCommandExecutor implements CommandExecutor, TabCompleter {
     }
 
     public boolean isOreVeinMinerEnabled(UUID uuid) {
-        ensureLoaded(uuid);
-        return oreVeinMinerEnabled.get(uuid);
+        return oreVeinMinerEnabled.getOrDefault(uuid, true);
     }
 
     public boolean isTreeVeinMinerEnabled(UUID uuid) {
-        ensureLoaded(uuid);
-        return treeVeinMinerEnabled.get(uuid);
+        return treeVeinMinerEnabled.getOrDefault(uuid, true);
     }
 
-    /** Loads the player's saved toggles on first access — defaults to true if no file exists yet. */
-    private void ensureLoaded(UUID uuid) {
-        if (!oreVeinMinerEnabled.containsKey(uuid)) {
-            oreVeinMinerEnabled.put(uuid,  dataManager.loadVeinminerOres(uuid));
-            treeVeinMinerEnabled.put(uuid, dataManager.loadVeinminerTrees(uuid));
-        }
+    /** Called on player join — loads their saved toggles from disk into memory. */
+    public void loadForPlayer(UUID uuid) {
+        oreVeinMinerEnabled.put(uuid,  dataManager.loadVeinminerOres(uuid));
+        treeVeinMinerEnabled.put(uuid, dataManager.loadVeinminerTrees(uuid));
+    }
+
+    /** Called on player quit — flushes current in-memory toggles to disk and clears them. */
+    public void saveAndUnloadForPlayer(UUID uuid) {
+        boolean ores  = oreVeinMinerEnabled.getOrDefault(uuid, true);
+        boolean trees = treeVeinMinerEnabled.getOrDefault(uuid, true);
+        dataManager.saveVeinminer(uuid, ores, trees);
+        oreVeinMinerEnabled.remove(uuid);
+        treeVeinMinerEnabled.remove(uuid);
     }
 
     @Override

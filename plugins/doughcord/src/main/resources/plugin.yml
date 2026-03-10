@@ -2,7 +2,7 @@
 # Licensed under the ESAL-1.3 License
 
 name: Doughcord
-version: 5.4.0-HOTFIX
+version: 5.5.0
 main: win.doughmination.doughcord.CordMain
 api-version: 1.21.11
 depend: [DoughAPI]
@@ -11,66 +11,74 @@ website: "https://modding.doughmination.win"
 
 # Commands
 commands:
-  doughban:
-    description: Ban a player from the server
-    usage: /ban <player> [reason]
-    permission: dough.ban
-    permission-message: §cYou do not have permission to ban players!
-  unban:
-    description: Unban a player from the server
-    usage: /unban <player>
-    permission: dough.unban
-    permission-message: §cYou do not have permission to unban players!
-  banlist:
-    description: View all banned players
-    usage: /banlist
-    permission: dough.banlist
-    permission-message: §cYou do not have permission to view the ban list!
-  recipes:
-    description: Get the URL to view all spawn egg recipes
-    usage: /recipes
-    permission: dough.recipes
+  back:
+    description: Return to your last location before a teleport, or where you died.
+    usage: /back
+    permission: dough.back
     permission-message: §cYou don't have permission to use this command!
-  version:
-    description: Display the plugin version and credits.
-  setspawn:
-    description: Set the spawn location
-    permission: dough.setspawn
-  spawn:
-    description: Teleport to the spawn location
-  doughreload:
-    description: Reload the doughminationcord plugin configuration
-    usage: /doughreload
-    permission: dough.reload
-    permission-message: §cYou do not have permission to reload this plugin!
-  tpa:
-    description: Ask to tp to another player
-    usage: /tp <player>
-    permission: dough.tpa
+  bark:
+    description: Send a cute dog message
+    usage: /bark
+    permission: dough.bark
     permission-message: §cYou don't have permission to use this command!
-  tpaccept:
-    description: Accept a tp request
-    usage: /tpaccept
-    permission: dough.tpaccept
+  base:
+    description: Manage your base — teleport, set, name, protect, trust players, and toggle flight. Use /base visit <player> (op only) to visit another player's base.
+    usage: /base [tp|set|name|trust|untrust|info|fly|visit]
+  beef:
+    description: Receive a stack of cooked beef. VIP only.
+    usage: /beef
+    permission: dough.beef
     permission-message: §cYou don't have permission to use this command!
-  tpdeny:
-    description: Deny a tp request
-    usage: /tpdeny
-    permission: dough.tpdeny
-    permission-message: §cYou don't have permission to use this command!
-  playtime:
-    description: Check your total playtime on the server.
-    usage: /playtime
-    permission: dough.playtime
+  chest:
+    description: Inspect a player's ender chest, VIP chest, or inventory (moderation)
+    usage: /chest <echest|vchest|inv> <player> [take <slot>]
+    permission: dough.chest.inspect
+    permission-message: §cYou do not have permission to inspect player inventories!
+  craft:
+    description: Open a crafting table anywhere.
+    usage: /craft
+    permission: dough.craft
     permission-message: §cYou don't have permission to use this command!
   dough:
     description: Show help information for Doughminationcord commands
     usage: /dough <page>
     permission: dough.use
     aliases: [ ec ]
-  base:
-    description: Manage your base — teleport, set, name, protect and trust players. Use /base visit <player> (op only) to visit another player's base.
-    usage: /base [tp|set|name|trust|untrust|info|visit]
+  doughban:
+    description: Ban a player from the server
+    usage: /doughban <player> [reason]
+    permission: dough.ban
+    permission-message: §cYou do not have permission to ban players!
+  doughbanlist:
+    description: View all banned players
+    usage: /doughbanlist
+    permission: dough.banlist
+    permission-message: §cYou do not have permission to view the ban list!
+  doughpardon:
+    description: Unban a player from the server
+    usage: /doughpardon <player>
+    permission: dough.unban
+    permission-message: §cYou do not have permission to unban players!
+  doughreload:
+    description: Reload the doughminationcord plugin configuration
+    usage: /doughreload
+    permission: dough.reload
+    permission-message: §cYou do not have permission to reload this plugin!
+  echest:
+    description: Remotely open your ender chest
+    usage: /echest
+    permission: dough.echest
+    permission-message: §cYou do not have permission to use this command!
+  flyzone:
+    description: Create a communal flight zone
+    usage: /flyzone <x1> <y1> <z1> <x2> <y2> <z2> <n>
+    permission: dough.flyzone
+    permission-message: §cYou don't have permission to use this command!
+  growthpotion:
+    description: Gives you a growth potion
+    usage: /growthpotion
+    permission: dough.growthpotion
+    permission-message: §cYou don't have permission to use this command!
   kiss:
     description: Kiss another player
     usage: /kiss <player>
@@ -81,121 +89,169 @@ commands:
     usage: /meow
     permission: dough.meow
     permission-message: §cYou don't have permission to use this command!
-  bark:
-    description: Send a cute dog message
-    usage: /bark
-    permission: dough.bark
+  playtime:
+    description: Check your total playtime on the server.
+    usage: /playtime
+    permission: dough.playtime
     permission-message: §cYou don't have permission to use this command!
-  veinminer:
-    description: Toggle vein mining for ores or trees
-    usage: /veinminer <ores|trees>
-  basefly:
-    description: Toggle flight within base radius
-    usage: /basefly <on|off>
-  flyzone:
-    description: Create a communal flight zone
-    usage: /flyzone <x1> <y1> <z1> <x2> <y2> <z2> <name>
-    permission: dough.flyzone
+  recipes:
+    description: Get the URL to view all spawn egg recipes
+    usage: /recipes
+    permission: dough.recipes
+    permission-message: §cYou don't have permission to use this command!
   rmflyzone:
     description: Remove a communal flight zone
-    usage: /rmflyzone <name>
+    usage: /rmflyzone <n>
     permission: dough.flyzone
-  echest:
-    description: Remotely open your ender chest
-    usage: /echest
-    permission: dough.echest
-    permission-message: §cYou do not have permission to use this command!
-  vchest:
-    description: Remotely open your VIP ender chest
-    usage: /echest
-    permission: dough.vchest
-    permission-message: §cYou do not have permission to use this command!
-  chest:
-    description: Inspect a player's ender chest, VIP chest, or inventory (moderation)
-    usage: /chest <echest|vchest|inv> <player> [take <slot>]
-    permission: dough.chest.inspect
-    permission-message: §cYou do not have permission to inspect player inventories!
-  growthpotion:
-    description: Gives you a growth potion
-    usage: /growthpotion
-    permission: dough.growthpotion
+    permission-message: §cYou don't have permission to use this command!
+  rtp:
+    description: Teleport to a random location
+    usage: /rtp
+    permission: dough.rtp
+    permission-message: §cYou don't have permission to use this command!
+  seen:
+    description: Check when a player was last online.
+    usage: /seen <player>
+    permission: dough.seen
+    permission-message: §cYou don't have permission to use this command!
+  setspawn:
+    description: Set the spawn location
+    usage: /setspawn
+    permission: dough.setspawn
+    permission-message: §cYou don't have permission to use this command!
   shrinkpotion:
     description: Gives you a shrink potion
     usage: /shrinkpotion
     permission: dough.shrinkpotion
-  rtp:
-    description: Teleport to a random location
-    usage: /rtp
-    permission: doughcord.rtp
+    permission-message: §cYou don't have permission to use this command!
+  spawn:
+    description: Teleport to the spawn location
+    usage: /spawn
+  spin:
+    description: Spin yourself!
+    usage: /spin
+    permission: dough.spin
+    permission-message: §cYou don't have permission to use this command!
+  tpa:
+    description: Ask to teleport to another player
+    usage: /tpa <player>
+    permission: dough.tpa
+    permission-message: §cYou don't have permission to use this command!
+  tpaccept:
+    description: Accept a teleport request
+    usage: /tpaccept
+    permission: dough.tpaccept
+    permission-message: §cYou don't have permission to use this command!
+  tpdeny:
+    description: Deny a teleport request
+    usage: /tpdeny
+    permission: dough.tpdeny
+    permission-message: §cYou don't have permission to use this command!
+  tps:
+    description: Check the server's current TPS.
+    usage: /tps
+    permission: dough.tps
+    permission-message: §cYou don't have permission to use this command!
+  vchest:
+    description: Remotely open your VIP chest
+    usage: /vchest
+    permission: dough.vchest
+    permission-message: §cYou do not have permission to use this command!
+  veinminer:
+    description: Toggle vein mining for ores or trees
+    usage: /veinminer <ores|trees>
+  version:
+    description: Display the plugin version and credits.
+    usage: /version
 
 # Permissions
+# --- Player permissions (default: true) ---
 permissions:
-  dough.ban:
-    description: Allows banning players
-    default: op
-  dough.unban:
-    description: Allows unbanning players
-    default: op
-  dough.banlist:
-    description: Allows viewing the ban list
-    default: op
-  dough.reload:
-    description: Allows reloading of the Doughminationcord plugin.
-    default: op
-  dough.visitbase:
-    description: Allows players to teleport to other players' bases.
-    default: op
-  dough.setspawn:
-    description: Allows players to set spawn.
-    default: op
+  dough.back:
+    description: Allows use of /back to return to last location or death point.
+    default: true
+  dough.bark:
+    description: Allows players to use the bark command.
+    default: true
+  dough.craft:
+    description: Allows use of /craft to open a crafting table anywhere.
+    default: true
+  dough.echest:
+    description: Allows players to use /echest to open their ender chest remotely.
+    default: true
   dough.kiss:
     description: Allows players to use the kiss command.
     default: true
   dough.meow:
     description: Allows players to use the meow command.
     default: true
-  dough.bark:
-    description: Allows players to use the bark command.
-    default: true
   dough.playtime:
     description: Allows players to check their playtime.
     default: true
+  dough.recipes:
+    description: Allows players to view spawn egg recipes URL.
+    default: true
+  dough.rtp:
+    description: Allows use of /rtp.
+    default: true
+  dough.seen:
+    description: Allows use of /seen to check when a player was last online.
+    default: true
+  dough.spin:
+    description: Allows use of /spin.
+    default: true
   dough.tpa:
-    description: Allows player to ask to tp to another player.
+    description: Allows players to ask to teleport to another player.
     default: true
   dough.tpaccept:
-    description: Allows a player to accept a tp request.
+    description: Allows players to accept a teleport request.
     default: true
   dough.tpdeny:
-    description: Allows a player to deny a tp request.
+    description: Allows players to deny a teleport request.
+    default: true
+  dough.tps:
+    description: Allows use of /tps to check server TPS.
     default: true
   dough.use:
-    description: Allows a player to see the help section.
+    description: Allows players to see the help section.
     default: true
-  dough.flyzone:
-    description: Permission to manage communal fly zones
+# --- Op/VIP permissions (default: op) ---
+  dough.ban:
+    description: Allows banning players.
     default: op
-  dough.echest:
-    description: Allows players to use /echest to open their ender chest remotely.
-    default: true
-  dough.vchest:
-    description: Allows VIP players to open a separate larger double chest via /vchest.
+  dough.banlist:
+    description: Allows viewing the ban list.
+    default: op
+  dough.beef:
+    description: Allows VIP players to use /beef to receive a stack of cooked beef.
     default: op
   dough.chest.inspect:
     description: Allows staff to inspect any player's echest, vchest, or inventory via /chest.
     default: op
   dough.chest.take:
-    description: Allows staff to remove items from a player's echest, vchest, or inventory via /chest ... take <slot>.
+    description: Allows staff to remove items from a player's echest, vchest, or inventory via /chest take.
+    default: op
+  dough.flyzone:
+    description: Allows managing communal fly zones.
     default: op
   dough.growthpotion:
-    description: Gives a growth potion
+    description: Allows use of /growthpotion.
+    default: op
+  dough.reload:
+    description: Allows reloading of the Doughminationcord plugin.
+    default: op
+  dough.setspawn:
+    description: Allows players to set spawn.
     default: op
   dough.shrinkpotion:
-    description: Gives a shrink potion
+    description: Allows use of /shrinkpotion.
     default: op
-  dough.recipes:
-    description: Allows players to view spawn egg recipes URL
-    default: true
-  doughcord.rtp:
-    description: Allows use of /rtp
-    default: true
+  dough.unban:
+    description: Allows unbanning players.
+    default: op
+  dough.vchest:
+    description: Allows VIP players to open a separate larger double chest via /vchest.
+    default: op
+  dough.visitbase:
+    description: Allows players to teleport to other players' bases.
+    default: op

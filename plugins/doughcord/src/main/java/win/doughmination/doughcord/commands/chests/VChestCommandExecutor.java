@@ -30,7 +30,12 @@ import win.doughmination.doughcord.data.VChestDataManager;
 
 public class VChestCommandExecutor implements CommandExecutor, TabCompleter, Listener {
 
-    private final Map<UUID, Inventory> vipInventories = new HashMap<>();
+    /**
+     * Tracks inventories that are currently open so we can match them in
+     * InventoryCloseEvent. Entries are added when a player opens their chest
+     * and removed as soon as it closes — we never hold onto them between sessions.
+     */
+    private final Map<UUID, Inventory> openInventories = new HashMap<>();
     private final CordMain plugin;
     private final VChestDataManager dataManager;
 
@@ -53,14 +58,21 @@ public class VChestCommandExecutor implements CommandExecutor, TabCompleter, Lis
         }
 
         UUID uuid = player.getUniqueId();
-        Inventory vipChest = vipInventories.computeIfAbsent(uuid, k -> {
-            Inventory inv = Bukkit.createInventory(player, 54,
-                    Component.text("✦ " + player.getName() + "'s VIP Chest", NamedTextColor.LIGHT_PURPLE));
-            dataManager.loadInto(uuid, inv);
-            return inv;
-        });
 
-        player.openInventory(vipChest);
+        // If the player already has their chest open (e.g. double-clicked the command),
+        // just re-open the same inventory instance rather than creating a second one.
+        if (openInventories.containsKey(uuid)) {
+            player.openInventory(openInventories.get(uuid));
+            return true;
+        }
+
+        // Always build a fresh inventory and populate it from disk.
+        Inventory inv = Bukkit.createInventory(player, 54,
+                Component.text("✦ " + player.getName() + "'s VIP Chest", NamedTextColor.LIGHT_PURPLE));
+        dataManager.loadInto(uuid, inv);
+
+        openInventories.put(uuid, inv);
+        player.openInventory(inv);
         return true;
     }
 
@@ -68,15 +80,19 @@ public class VChestCommandExecutor implements CommandExecutor, TabCompleter, Lis
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
         UUID uuid = player.getUniqueId();
-        Inventory vipChest = vipInventories.get(uuid);
-        if (vipChest != null && event.getInventory().equals(vipChest)) {
-            dataManager.save(uuid, vipChest);
+        Inventory inv = openInventories.remove(uuid); // always remove — chest is closed
+        if (inv != null && event.getInventory().equals(inv)) {
+            dataManager.save(uuid, inv);
         }
     }
 
-    /** Called from CordMain#onDisable to flush all open inventories. */
+    /**
+     * Called from CordMain#onDisable to flush any inventories still open at shutdown.
+     * This is a last-resort safety net; normal saves happen in onInventoryClose.
+     */
     public void saveAll() {
-        vipInventories.forEach(dataManager::save);
+        openInventories.forEach(dataManager::save);
+        openInventories.clear();
     }
 
     @Override
@@ -84,3 +100,4 @@ public class VChestCommandExecutor implements CommandExecutor, TabCompleter, Lis
         return Collections.emptyList();
     }
 }
+

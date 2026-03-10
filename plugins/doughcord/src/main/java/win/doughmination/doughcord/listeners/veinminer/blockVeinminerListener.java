@@ -6,7 +6,7 @@
 package win.doughmination.doughcord.listeners.veinminer;
 
 import win.doughmination.doughcord.CordMain;
-import win.doughmination.doughcord.commands.veinminerCommandExecutor;
+import win.doughmination.doughcord.commands.other.veinminerCommandExecutor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandExecutor;
@@ -61,6 +61,8 @@ public class blockVeinminerListener implements Listener {
     }
 
     private boolean isLog(Material material) {
+        // Mushroom stems are explicitly excluded — they must not veinmine
+        if (material == Material.MUSHROOM_STEM) return false;
         return material.name().endsWith("_LOG") || material.name().endsWith("_STEM");
     }
 }

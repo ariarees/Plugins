@@ -28,7 +28,6 @@ public class BaseFlightMain {
         // Register commands and events
         Bukkit.getPluginManager().registerEvents(new FlightListener(this, doughPlugin), doughPlugin);
 
-        doughPlugin.getCommand("basefly").setExecutor(new BaseFlyCommandExecutor(this, doughPlugin));
         doughPlugin.getCommand("flyzone").setExecutor(new FlyZoneCommandExecutor(this));
         doughPlugin.getCommand("rmflyzone").setExecutor(new RemoveFlyZoneCommandExecutor(this));
 
