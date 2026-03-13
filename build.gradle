@@ -65,19 +65,16 @@ subprojects {
     tasks.register('copyJar', Copy) {
         dependsOn shadowJar
         from shadowJar.archiveFile
-        into rootProject.layout.buildDirectory.dir('libs')
-        doFirst {
-            rootProject.layout.buildDirectory.dir('libs').get().asFile.mkdirs()
-        }
+        into "${rootProject.buildDir}/libs"
     }
 
     build.finalizedBy copyJar
 }
 
 tasks.register('buildAll') {
-    dependsOn subprojects.collect { it.tasks.named('copyJar') }
+    dependsOn subprojects.collect { it.tasks.named('build') }
 
     doLast {
-        println "All plugins built! JARs available in: ${rootProject.layout.buildDirectory.get()}/libs"
+        println "All plugins built! JARs available in: ${buildDir}/libs"
     }
 }

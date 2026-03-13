@@ -1,3 +1,7 @@
+tasks.named('compileJava') {
+    dependsOn ':doughapi:shadowJar'
+}
+
 dependencies {
     compileOnly project(':doughapi')
     implementation 'net.dv8tion:JDA:6.3.1'
