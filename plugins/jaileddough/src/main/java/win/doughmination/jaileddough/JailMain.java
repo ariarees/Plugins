@@ -5,12 +5,14 @@
 
 package win.doughmination.jaileddough;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.entity.Player;
-import org.bukkit.ChatColor;
 import org.bstats.bukkit.Metrics;
 import win.doughmination.api.LibMain;
 import win.doughmination.jaileddough.commands.*;
@@ -118,7 +120,7 @@ public class JailMain extends JavaPlugin {
                         Location returnLoc = locationStorage.get(id);
                         if (returnLoc != null) {
                             player.teleport(returnLoc);
-                            player.sendMessage(ChatColor.GREEN + "You have been released from jail!");
+                            player.sendRichMessage("<green>You have been released from jail!</green>");
                         } else {
                             getLogger().warning("No pre-jail location for " + player.getName() + " during auto-unjail!");
                         }
