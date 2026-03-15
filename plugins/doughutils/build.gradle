@@ -1,0 +1,33 @@
+description = "DoughUtils - Unified Doughmination plugin suite"
+
+repositories {
+    maven { url 'https://repo.lucko.me/' }
+}
+
+dependencies {
+    // LuckPerms API — soft dep, compile-only (not bundled)
+    compileOnly 'net.luckperms:api:5.5'
+
+    // Discord bot
+    implementation 'net.dv8tion:JDA:6.3.1'
+
+    // Database
+    implementation 'org.postgresql:postgresql:42.7.10'
+    implementation 'com.zaxxer:HikariCP:7.0.2'
+}
+
+shadowJar {
+    archiveBaseName.set('DoughUtils')
+
+    relocate 'net.dv8tion.jda',          'win.doughmination.libs.jda'
+    relocate 'okhttp3',                   'win.doughmination.libs.okhttp3'
+    relocate 'okio',                      'win.doughmination.libs.okio'
+    relocate 'com.fasterxml.jackson',     'win.doughmination.libs.jackson'
+    relocate 'org.slf4j',                 'win.doughmination.libs.slf4j'
+    relocate 'kotlin',                    'win.doughmination.libs.kotlin'
+    relocate 'org.jetbrains',             'win.doughmination.libs.jetbrains'
+    relocate 'org.postgresql',            'win.doughmination.libs.postgresql'
+    relocate 'com.zaxxer',                'win.doughmination.libs.zaxxer'
+    relocate 'waffle',                    'win.doughmination.libs.waffle'
+    relocate 'com.ongres',                'win.doughmination.libs.ongres'
+}

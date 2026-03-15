@@ -1,0 +1,329 @@
+# Copyright (c) 2026 Clove Twilight
+# Licensed under the ESAL-1.3 License
+
+name: DoughUtils
+main: win.doughmination.doughutils.Main
+version: 1.0.0
+api-version: 1.21.11
+author: Doughmination
+website: https://modding.doughmination.win
+description: Unified Doughmination plugin suite
+softdepend: [LuckPerms]
+
+commands:
+  # ── Travel ──────────────────────────────────────────────────────────────────
+  back:
+    description: Return to your last location before a teleport, or where you died.
+    usage: /back
+    permission: dough.back
+    permission-message: §cYou don't have permission to use this command!
+  base:
+    description: Manage your base — teleport, set, name, protect, trust players, and toggle flight.
+    usage: /base [tp|set|name|trust|untrust|info|fly|visit]
+  rtp:
+    description: Teleport to a random location.
+    usage: /rtp
+    permission: dough.rtp
+    permission-message: §cYou don't have permission to use this command!
+  setspawn:
+    description: Set the server spawn location.
+    usage: /setspawn
+    permission: dough.setspawn
+    permission-message: §cYou don't have permission to use this command!
+  spawn:
+    description: Teleport to the server spawn.
+    usage: /spawn
+  tpa:
+    description: Ask to teleport to another player.
+    usage: /tpa <player>
+    permission: dough.tpa
+    permission-message: §cYou don't have permission to use this command!
+  tpaccept:
+    description: Accept a teleport request.
+    usage: /tpaccept
+    permission: dough.tpaccept
+    permission-message: §cYou don't have permission to use this command!
+  tpdeny:
+    description: Deny a teleport request.
+    usage: /tpdeny
+    permission: dough.tpdeny
+    permission-message: §cYou don't have permission to use this command!
+  flyzone:
+    description: Create a communal flight zone.
+    usage: /flyzone <x1> <y1> <z1> <x2> <y2> <z2> <n>
+    permission: dough.flyzone
+    permission-message: §cYou don't have permission to use this command!
+  rmflyzone:
+    description: Remove a communal flight zone.
+    usage: /rmflyzone <n>
+    permission: dough.flyzone
+    permission-message: §cYou don't have permission to use this command!
+  # ── Moderation ───────────────────────────────────────────────────────────────
+  dough:
+    description: Show help for DoughUtils commands.
+    usage: /dough [category]
+    permission: dough.use
+    aliases: [doughhelp]
+  doughban:
+    description: Ban a player from the server.
+    usage: /doughban <player> [reason]
+    permission: dough.ban
+    permission-message: §cYou don't have permission to ban players!
+  doughpardon:
+    description: Unban a player from the server.
+    usage: /doughpardon <player>
+    permission: dough.unban
+    permission-message: §cYou don't have permission to unban players!
+  doughbanlist:
+    description: View all banned players.
+    usage: /doughbanlist
+    permission: dough.banlist
+    permission-message: §cYou don't have permission to view the ban list!
+  doughreload:
+    description: Reload the DoughUtils configuration.
+    usage: /doughreload
+    permission: dough.reload
+    permission-message: §cYou don't have permission to reload this plugin!
+  version:
+    description: Display the plugin version.
+    usage: /version
+  # ── Roleplay ─────────────────────────────────────────────────────────────────
+  bark:
+    description: Send a cute dog message.
+    usage: /bark
+    permission: dough.bark
+    permission-message: §cYou don't have permission to use this command!
+  kiss:
+    description: Kiss another player.
+    usage: /kiss <player>
+    permission: dough.kiss
+    permission-message: §cYou don't have permission to use this command!
+  meow:
+    description: Send a cute cat message.
+    usage: /meow
+    permission: dough.meow
+    permission-message: §cYou don't have permission to use this command!
+  spin:
+    description: Spin yourself!
+    usage: /spin
+    permission: dough.spin
+    permission-message: §cYou don't have permission to use this command!
+  # ── Chests ───────────────────────────────────────────────────────────────────
+  echest:
+    description: Remotely open your ender chest.
+    usage: /echest
+    permission: dough.echest
+    permission-message: §cYou don't have permission to use this command!
+  vchest:
+    description: Remotely open your VIP chest.
+    usage: /vchest
+    permission: dough.vchest
+    permission-message: §cYou don't have permission to use this command!
+  chest:
+    description: Inspect a player's ender chest, VIP chest, or inventory (staff).
+    usage: /chest <echest|vchest|inv> <player> [take <slot>]
+    permission: dough.chest.inspect
+    permission-message: §cYou don't have permission to inspect player inventories!
+  # ── Other ─────────────────────────────────────────────────────────────────────
+  beef:
+    description: Receive a stack of cooked beef. VIP only.
+    usage: /beef
+    permission: dough.beef
+    permission-message: §cYou don't have permission to use this command!
+  craft:
+    description: Open a crafting table anywhere.
+    usage: /craft
+    permission: dough.craft
+    permission-message: §cYou don't have permission to use this command!
+  growthpotion:
+    description: Gives you a growth potion.
+    usage: /growthpotion
+    permission: dough.growthpotion
+    permission-message: §cYou don't have permission to use this command!
+  shrinkpotion:
+    description: Gives you a shrink potion.
+    usage: /shrinkpotion
+    permission: dough.shrinkpotion
+    permission-message: §cYou don't have permission to use this command!
+  playtime:
+    description: Check your total playtime.
+    usage: /playtime
+    permission: dough.playtime
+    permission-message: §cYou don't have permission to use this command!
+  recipes:
+    description: Get the URL to view all spawn egg recipes.
+    usage: /recipes
+    permission: dough.recipes
+    permission-message: §cYou don't have permission to use this command!
+  seen:
+    description: Check when a player was last online.
+    usage: /seen <player>
+    permission: dough.seen
+    permission-message: §cYou don't have permission to use this command!
+  tps:
+    description: Check the server's current TPS.
+    usage: /tps
+    permission: dough.tps
+    permission-message: §cYou don't have permission to use this command!
+  veinminer:
+    description: Toggle vein mining for ores or trees.
+    usage: /veinminer <ores|trees>
+  # ── End Stats ────────────────────────────────────────────────────────────────
+  estart:
+    description: Start the dragon event.
+    usage: /estart
+    permission: dragonevent.admin
+    permission-message: §cYou don't have permission to use this command!
+  estop:
+    description: Stop and reset the dragon event.
+    usage: /estop
+    permission: dragonevent.admin
+    permission-message: §cYou don't have permission to use this command!
+  # ── Jail ─────────────────────────────────────────────────────────────────────
+  setjail:
+    description: Set the jail location.
+    usage: /setjail [x y z]
+    permission: jailplugin.setjail
+    permission-message: §cYou don't have permission to use this command!
+  jail:
+    description: Teleport a player to jail.
+    usage: /jail <player> [seconds]
+    permission: jailplugin.jail
+    permission-message: §cYou don't have permission to use this command!
+  unjail:
+    description: Release a player from jail.
+    usage: /unjail <player>
+    permission: jailplugin.unjail
+    permission-message: §cYou don't have permission to use this command!
+  jailreload:
+    description: Reload the jail configuration.
+    usage: /jailreload
+    permission: jailplugin.reload
+    permission-message: §cYou don't have permission to use this command!
+  jailhelp:
+    description: Display jail command help.
+    usage: /jailhelp
+  # ── WingSync ─────────────────────────────────────────────────────────────────
+  wsreload:
+    description: Reload WingSync config and reconnect the Discord bot.
+    usage: /wsreload
+    permission: wingsync.reload
+    permission-message: §cYou don't have permission to use this command!
+
+permissions:
+  # ── Default (all players) ───────────────────────────────────────────────────
+  dough.back:
+    description: Use /back.
+    default: true
+  dough.bark:
+    description: Use /bark.
+    default: true
+  dough.craft:
+    description: Use /craft.
+    default: true
+  dough.echest:
+    description: Use /echest.
+    default: true
+  dough.kiss:
+    description: Use /kiss.
+    default: true
+  dough.meow:
+    description: Use /meow.
+    default: true
+  dough.playtime:
+    description: Check your playtime.
+    default: true
+  dough.recipes:
+    description: View spawn egg recipes URL.
+    default: true
+  dough.rtp:
+    description: Use /rtp.
+    default: true
+  dough.seen:
+    description: Use /seen.
+    default: true
+  dough.spin:
+    description: Use /spin.
+    default: true
+  dough.tpa:
+    description: Send teleport requests.
+    default: true
+  dough.tpaccept:
+    description: Accept teleport requests.
+    default: true
+  dough.tpdeny:
+    description: Deny teleport requests.
+    default: true
+  dough.tps:
+    description: Check server TPS.
+    default: true
+  dough.use:
+    description: Access the /dough help menu.
+    default: true
+  statsend.participate:
+    description: Participate in dragon events.
+    default: true
+  # ── Op / Staff ───────────────────────────────────────────────────────────────
+  dough.ban:
+    description: Ban players.
+    default: op
+  dough.banlist:
+    description: View the ban list.
+    default: op
+  dough.beef:
+    description: Use /beef (VIP).
+    default: op
+  dough.chest.inspect:
+    description: Inspect player inventories via /chest.
+    default: op
+  dough.chest.take:
+    description: Remove items via /chest take.
+    default: op
+  dough.flyzone:
+    description: Manage communal fly zones.
+    default: op
+  dough.growthpotion:
+    description: Use /growthpotion.
+    default: op
+  dough.reload:
+    description: Reload DoughUtils configuration.
+    default: op
+  dough.setspawn:
+    description: Set the server spawn.
+    default: op
+  dough.shrinkpotion:
+    description: Use /shrinkpotion.
+    default: op
+  dough.unban:
+    description: Unban players.
+    default: op
+  dough.vchest:
+    description: Use /vchest (VIP).
+    default: op
+  dough.visitbase:
+    description: Teleport to any player's base.
+    default: op
+  dough.alerts:
+    description: Receive plugin update alerts.
+    default: op
+  dragonevent.admin:
+    description: Start and stop dragon events.
+    default: op
+  statsend.admin:
+    description: Alias for dragonevent.admin.
+    default: op
+  jailplugin.setjail:
+    description: Set the jail location.
+    default: op
+  jailplugin.jail:
+    description: Jail players.
+    default: op
+  jailplugin.unjail:
+    description: Unjail players.
+    default: op
+  jailplugin.reload:
+    description: Reload jail configuration.
+    default: op
+  wingsync.reload:
+    description: Reload WingSync and reconnect the Discord bot.
+    default: op

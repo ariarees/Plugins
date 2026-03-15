@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2026 Clove Twilight
+ * Licensed under the ESAL-1.3 Licence
+ */
+
+package win.doughmination.doughutils.listeners.travel;
+import win.doughmination.doughutils.Main;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.UUID;
+
+public class FlightCheckTask extends BukkitRunnable {
+
+    private final BaseFlightMain flightMain;
+    private final Main doughPlugin;
+
+    public FlightCheckTask(BaseFlightMain flightMain, Main doughPlugin) {
+        this.flightMain = flightMain;
+        this.doughPlugin = doughPlugin;
+    }
+
+    @Override
+    public void run() {
+        boolean allFlightEnabled = doughPlugin.getConfig().getBoolean("AllFlight");
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            UUID playerUUID = player.getUniqueId();
+
+            if (allFlightEnabled) {
+                if (!player.getAllowFlight()) {
+                    player.setAllowFlight(true);
+                    player.sendMessage(Component.text("Flight enabled globally.", NamedTextColor.GREEN));
+                }
+                continue;
+            }
+
+            if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.CREATIVE) {
+                if (!player.getAllowFlight()) player.setAllowFlight(true);
+                continue;
+            }
+
+            Location playerLocation = player.getLocation();
+            boolean inCommunalZone = false;
+
+            for (BaseFlightMain.FlyZone zone : flightMain.getCommunalFlyZones().values()) {
+                if (zone.isWithinZone(playerLocation)) {
+                    inCommunalZone = true;
+                    break;
+                }
+            }
+
+            if (inCommunalZone) {
+                if (!player.getAllowFlight()) {
+                    player.setAllowFlight(true);
+                    player.sendMessage(Component.text("Flight enabled within communal fly zone.", NamedTextColor.GREEN));
+                }
+                continue;
+            }
+
+            Location baseLocation = doughPlugin.getBaseLocation(playerUUID);
+            if (baseLocation != null && baseLocation.getWorld().equals(playerLocation.getWorld())) {
+                double distance = baseLocation.distance(playerLocation);
+                boolean withinRadius = distance <= 100;
+
+                if (withinRadius && flightMain.getFlightToggles().getOrDefault(playerUUID, false)) {
+                    if (!player.getAllowFlight()) {
+                        player.setAllowFlight(true);
+                        player.sendMessage(Component.text("Flight enabled within base radius.", NamedTextColor.GREEN));
+                    }
+                } else if (!withinRadius && player.getAllowFlight()) {
+                    player.setAllowFlight(false);
+                    player.sendMessage(Component.text("Flight disabled. You left the base radius.", NamedTextColor.RED));
+                }
+            } else if (player.getAllowFlight()) {
+                player.setAllowFlight(false);
+                player.sendMessage(Component.text("Flight disabled. You do not have a valid base.", NamedTextColor.RED));
+            }
+        }
+    }
+}

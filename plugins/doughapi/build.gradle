@@ -1,9 +1,0 @@
-description = "DoughAPI - A Library plugin for Dough Plugins"
-
-dependencies {
-    // None needed
-}
-
-shadowJar {
-    archiveBaseName.set('DoughAPI')
-}

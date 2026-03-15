@@ -1,17 +1,9 @@
 rootProject.name = 'Doughmination'
 
 // Include all plugin subprojects
-include 'doughapi'
+include 'doughutils'
 include 'plural'
-include 'doughcord'
-include 'jaileddough'
-include 'doughendstats'
-include 'wingsync'
 
 // Set project directories to point to the actual locations
-project(':doughapi').projectDir = file('plugins/doughapi')
+project(':doughutils').projectDir = file('plugins/doughutils')
 project(':plural').projectDir = file('plugins/plural')
-project(':doughcord').projectDir = file('plugins/doughcord')
-project(':jaileddough').projectDir = file('plugins/jaileddough')
-project(':doughendstats').projectDir = file('plugins/doughendstats')
-project(':wingsync').projectDir = file('plugins/wingsync')
