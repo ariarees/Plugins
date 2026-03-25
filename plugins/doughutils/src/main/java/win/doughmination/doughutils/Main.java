@@ -172,6 +172,8 @@ public class Main extends JavaPlugin {
         reg("bark",        new barkCommandExecutor(this));
         reg("kiss",        new kissCommandExecutor(this));
         reg("boop",        new boopCommandExecutor(this));
+        // Ari Was Here
+        reg("bap",         new bapCommandExecutor(this));
         reg("hug",         new hugCommandExecutor(this));
         reg("playtime",    new playtimeCommandExecutor(this));
         reg("veinminer",   veinMinerExecutor);
